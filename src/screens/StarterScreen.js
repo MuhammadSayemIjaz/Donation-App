@@ -5,7 +5,7 @@ import { Color } from '../../GlobalStyles';
 const StarterScreen = () => {
      const navigation = useNavigation();
      return (
-          <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('TABS')}>
+          <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('StarterScreen1')}>
                <Text style={styles.heading}>Donate for Smile</Text>
           </TouchableOpacity>
      )
