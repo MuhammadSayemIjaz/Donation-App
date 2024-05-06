@@ -63,7 +63,7 @@ const Login = () => {
           // setRole("Receiver")
           setActiveUser(user)
           setIsLoading(false)
-          console.log(userCredential.user);
+          console.log(userCredential.user.uid);
           // navigation.navigate('DrawerNavigation')
         })
         .catch((error) => {
@@ -79,7 +79,7 @@ const Login = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor='transparent' translucent={true} style='light' />
+      <StatusBar backgroundColor='transparent' translucent={true} style='dark' />
       <View style={styles.header}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.imageContainer}>
@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
   subHeading: {
     color: Color.heading2,
     fontSize: 20,
+    marginTop: '4%'
   },
   content: {
     width: '100%',

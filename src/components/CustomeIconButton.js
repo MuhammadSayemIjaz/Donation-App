@@ -9,7 +9,7 @@ const CustomeIconButton = ({ onPress, rightIcon,leftIcon, title, style, titleSty
      return (
           <TouchableOpacity activeOpacity={0.7} style={{width : '100%'}} onPress={onPress} >
                <View style={[styles.button, style]}>
-                    {isLoading && <ActivityIndicator animating={true} color={Color.containerColor} />}
+                    {isLoading && <ActivityIndicator animating={true} color={Color.textSecondary} />}
                     {leftIcon}
                     <Text style={[styles.title, titleStyle]}>{title}</Text>
                     {rightIcon}

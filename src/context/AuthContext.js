@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, user => {
       if (user) {
+        console.log("user already Signed in", user);
         setActiveUser(user);
       }
     });
