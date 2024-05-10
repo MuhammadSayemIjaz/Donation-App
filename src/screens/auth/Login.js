@@ -10,7 +10,8 @@ import { useNavigation } from '@react-navigation/native';
 import Toast from "react-native-toast-message";
 import { AuthContext } from '../../context/AuthContext';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../config/firebase';
+import { auth, firestoreDB } from '../../config/firebase';
+import { getDoc, doc, collection } from 'firebase/firestore/lite';
 
 const Login = () => {
   const { activeUser, setActiveUser, setRole } = useContext(AuthContext);
@@ -36,6 +37,19 @@ const Login = () => {
     password: '',
   });
 
+
+  const readDocs = async (userid) => {
+    // setIsLoading(true)
+    const collectionName = "users";
+    const usersCollectionRef = collection(firestoreDB, collectionName);
+    const userDocRef = doc(usersCollectionRef, userid);
+    const querySnapshot = await getDoc(userDocRef);
+    if (querySnapshot.exists()) {
+      const data = querySnapshot.data();
+      setRole(data.role)
+    }
+  };
+
   const validateForm = () => {
     let errors = {};
 
@@ -54,7 +68,7 @@ const Login = () => {
   };
   const handleSubmit = () => {
     setIsLoading(true)
-    const { email , password } = state;
+    const { email, password } = state;
     if (!activeUser) {
       signInWithEmailAndPassword(auth, email.toLowerCase(), password)
         .then((userCredential) => {
@@ -63,8 +77,9 @@ const Login = () => {
           // setRole("Receiver")
           setActiveUser(user)
           setIsLoading(false)
+          readDocs(userCredential.user.uid)
           console.log(userCredential.user.uid);
-          // navigation.navigate('DrawerNavigation')
+          navigation.navigate('TABS')
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -74,7 +89,7 @@ const Login = () => {
         });
     } else {
       setIsLoading(false);
-     //  navigation.navigate('DrawerNavigation', activeUser);
+      //  navigation.navigate('DrawerNavigation', activeUser);
     }
   };
   return (
@@ -95,7 +110,7 @@ const Login = () => {
                 label="Email"
                 placeholder="Enter Email"
                 left={
-                  <TextInput.Icon style={{marginTop: 15}} iconColor={Color.primary} icon="email" size={30} />
+                  <TextInput.Icon style={{ marginTop: 15 }} iconColor={Color.primary} icon="email" size={30} />
                 }
                 value={state.email}
                 onChangeText={(value) => handleInputChange('email', value)}
@@ -105,10 +120,10 @@ const Login = () => {
                 label="Password"
                 placeholder="Enter Password"
                 left={
-                  <TextInput.Icon iconColor={Color.primary} style={{marginTop: 10}} icon="lock" size={30} />
+                  <TextInput.Icon iconColor={Color.primary} style={{ marginTop: 10 }} icon="lock" size={30} />
                 }
                 right={
-                  <TextInput.Icon style={{marginTop: 10}} onPress={() => setShowPassword(!showPassword)} iconColor={Color.primary} icon={showPassword ? "eye" : 'eye-off'} size={30} />
+                  <TextInput.Icon style={{ marginTop: 10 }} onPress={() => setShowPassword(!showPassword)} iconColor={Color.primary} icon={showPassword ? "eye" : 'eye-off'} size={30} />
                 }
                 secureTextEntry={showPassword ? false : true}
                 value={state.password}
@@ -146,7 +161,7 @@ const styles = StyleSheet.create({
     padding: '5%'
   },
   header: {
-//     marginTop: '20%',
+    //     marginTop: '20%',
     borderWidth: 2,
     borderColor: 'white',
     borderRadius: 25,
@@ -156,7 +171,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     color: Color.heading1,
-//     fontWeight: 600,
+    //     fontWeight: 600,
     fontSize: 25,
   },
   subHeading: {
@@ -197,22 +212,22 @@ const styles = StyleSheet.create({
 
   },
   imageContainer: {
-//     height: 190,
-//     width: '100%',
-     paddingTop: '20%',
+    //     height: 190,
+    //     width: '100%',
+    paddingTop: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-     width: 250,
-     height: 'auto',
-     aspectRatio: 1,
-     objectFit: 'contain',
-//     width: '100%',
-//     height: '100%',
-//     borderRadius: 10,
-//     justifyContent: 'center',
-//     alignItems: 'center',
+    width: 250,
+    height: 'auto',
+    aspectRatio: 1,
+    objectFit: 'contain',
+    //     width: '100%',
+    //     height: '100%',
+    //     borderRadius: 10,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
   },
   dividerContainer: {
     width: '100%',
@@ -233,12 +248,12 @@ const styles = StyleSheet.create({
   footerText: {
     color: Color.heading1,
     fontSize: 27,
-//     fontWeight: 600,
+    //     fontWeight: 600,
   },
   forPassText: {
     color: Color.textPrimary,
     fontSize: 15,
-//     fontWeight: 600,
+    //     fontWeight: 600,
     textAlign: 'right',
     marginTop: '4%'
   },
