@@ -5,11 +5,13 @@ import { Color } from '../../GlobalStyles';
 import DonationImage from '../../assets/images/donation.svg';
 import CustomeButton from '../components/CustomeButton';
 import CustomeIconButton from '../components/CustomeIconButton';
+import { StatusBar } from 'expo-status-bar';
 
 const StarterScreen1 = () => {
      const navigation = useNavigation();
      return (
           <View style={styles.container} >
+               <StatusBar backgroundColor='transparent' translucent={true} style='dark' />
                <Image style={styles.image} source={require('../../assets/images/donation1.jpg')} />
                <Text style={styles.heading}>Need To Change Our Society</Text>
                <Text style={styles.paragraph}>Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>

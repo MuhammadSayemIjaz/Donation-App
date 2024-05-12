@@ -27,7 +27,7 @@ function TABS() {
       },
       // headerShown: false,
       tabBarInactiveBackgroundColor: 'black',
-      tabBarStyle: { backgroundColor: Color.primary, height: 80 },
+      tabBarStyle: { backgroundColor: Color.primary, height: 70 },
       tabBarLabelStyle: { color: Color.secondary, fontSize: 15 },
       // tabBarActiveBackgroundColor: 'transparent',
       // tabBarActiveTintColor: '#00aeef',

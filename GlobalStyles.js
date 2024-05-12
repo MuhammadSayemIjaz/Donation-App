@@ -28,6 +28,7 @@ export const Color = {
   textPrimary: '#000000',
   textSecondary: '#ffffff',
   textGray: '#C4C4C4',
+  white: '#ffffff',
 };
 /* Paddings */
 // export const Padding = {

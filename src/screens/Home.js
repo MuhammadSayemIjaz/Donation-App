@@ -17,7 +17,7 @@ import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/dat
 import { Fontisto } from '@expo/vector-icons';
 
 
-const DriversHome = ({ navigation }) => {
+const Home = ({ navigation }) => {
      const { activeUser } = useContext(AuthContext)
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
@@ -108,8 +108,11 @@ const DriversHome = ({ navigation }) => {
                          </View>
                     </View>
                </TouchableOpacity>
-               <View style={{ paddingHorizontal: '7%', paddingTop: 20 }}>
-                    <Text style={{ fontSize: 25, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Categories</Text>
+               <View style={{ paddingHorizontal: '5%', paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Categories</Text>
+                    {/* <TouchableOpacity activeOpacity={0.5} > */}
+                         <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
+                    {/* </TouchableOpacity> */}
                </View>
                <View style={styles.card2}>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DriverHospitalAccountDetails')}>
@@ -120,14 +123,14 @@ const DriversHome = ({ navigation }) => {
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('CurrentLocationMap', { currentLocation: state })}>
                          <View style={styles.subcard}>
-                         <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
+                              <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
                               {/* <Entypo name="location"  /> */}
                               {/* <Text style={styles.cardtext}>Current Location</Text> */}
                          </View>
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DriverNotification')}>
                          <View style={styles.subcard}>
-                         <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
+                              <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>Notifications</Text> */}
                          </View>
                     </TouchableOpacity>
@@ -404,4 +407,4 @@ const styles = StyleSheet.create({
      },
 });
 
-export default DriversHome;
+export default Home;
