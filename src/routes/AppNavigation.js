@@ -8,6 +8,7 @@ import Signup from '../screens/auth/Signup';
 import Categories from '../screens/Categories';
 import DonationForm from '../screens/DonationForm';
 import MoneyDonation from '../screens/MoneyDonation';
+import MoneyDetails from '../screens/MoneyDetails';
 const Stack = createStackNavigator();
 
 const AppNavigation = () => {
@@ -22,6 +23,7 @@ const AppNavigation = () => {
                     <Stack.Screen name="Categories" component={Categories}  options={{headerShown: false}}/>
                     <Stack.Screen name="DonationForm" component={DonationForm}  options={{headerShown: false}}/>
                     <Stack.Screen name="MoneyDonation" component={MoneyDonation}  options={{headerShown: false}}/>
+                    <Stack.Screen name="MoneyDetails" component={MoneyDetails}  options={{headerShown: false}}/>
                     {/* <Stack.Screen name="Home" component={Home} options={{headerShown: false}} /> */}
                     {/* <Stack.Screen name="About" component={About} 
                     options={{

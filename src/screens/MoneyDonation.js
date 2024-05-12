@@ -1,35 +1,24 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet, SafeAreaView, Text, TouchableOpacity, Image } from 'react-native';
-import { TextInput, RadioButton } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import CustomTextInput from '../components/CustomTextInput';
 import { StatusBar } from 'expo-status-bar';
 import { Color } from '../../GlobalStyles';
-import { Feather, FontAwesome, Ionicons } from '@expo/vector-icons';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomeIconButton from '../components/CustomeIconButton';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import * as ImagePicker from 'expo-image-picker';
-// import { useIsConnected } from 'react-native-offline';
 import { ref as dbRef, set } from 'firebase/database';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite';
 import { ref, getStorage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, db, firestoreDB } from '../config/firebase';
 import * as Location from 'expo-location';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { AuthContext } from '../context/AuthContext';
 
 const MoneyDonation = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
-     // const isConnected = useIsConnected();
-     const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
-     const [isButtonPressed, setIsButtonPressed] = useState(false);
-     const [isImageSelected, setIsImageSelected] = useState(false);
-     const [confirmShowPassword, setConfirmShowPassword] = useState(false);
-     const [showPassword, setShowPassword] = useState(false);
-     const [location, setLocation] = useState(null);
      const [isLoading, setIsLoading] = useState(false);
      const initialState = {
           amount: "50 Rs",
@@ -69,7 +58,7 @@ const MoneyDonation = () => {
      const validateForm = () => {
           let errors = {};
           if (!selectedAmount) {
-               handleToast('error', 'Profile Image', 'Image Is required')
+               handleToast('error', 'Amount Not Selected', 'Please select amount to donate')
                return;
           } else if (selectedAmount === "Other" && !state.amount) {
                errors.amount = true;
@@ -89,8 +78,9 @@ const MoneyDonation = () => {
 
 
      const handleSubmit = async () => {
-          console.log(selectedAmount);
-          console.log(state.amount);
+          setIsLoading(true);
+          navigation.navigate('MoneyDetails', { data: state.amount });
+          setIsLoading(false);
      };
      return (
           <SafeAreaView style={styles.container}>
@@ -165,7 +155,7 @@ const MoneyDonation = () => {
                                    <View style={styles.btnContainer}>
                                         <TouchableOpacity onPress={handleSubmit}>
                                              <CustomeIconButton
-                                                  title="Donate Now"
+                                                  title="Enter Details"
                                                   isLoading={isLoading}
                                                   titleStyle={{ color: Color.textSecondary }}
                                                   style={styles.btn}
