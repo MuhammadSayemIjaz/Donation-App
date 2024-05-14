@@ -90,39 +90,39 @@ const Categories = ({ navigation }) => {
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.content}>
 
-                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('BloodDonation')}>
                                    <View style={styles.cardContent} >
-                                        <Fontisto name="blood-drop" size={44} color={Color.white} />
+                                        <Fontisto name="blood-drop" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Blood Donation</Text>
                                    </View>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
                                    <View style={styles.cardContent}>
-                                        <Ionicons name="fast-food-sharp" size={44} color={Color.white} />
+                                        <Ionicons name="fast-food-sharp" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Food Donation</Text>
                                    </View>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
                                    <View style={styles.cardContent}>
-                                        <Ionicons name="shirt" size={44} color={Color.white} />
+                                        <Ionicons name="shirt" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Cloth Donation</Text>
                                    </View>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
                                    <View style={styles.cardContent}>
-                                        <MaterialCommunityIcons name="pill" size={44} color={Color.white} />
+                                        <MaterialCommunityIcons name="pill" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Medicine Donation</Text>
                                    </View>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('MoneyDonation')}>
                                    <View style={styles.cardContent}>
-                                        <FontAwesome5 name="money-bill-wave" size={44} color={Color.white} />
+                                        <FontAwesome5 name="money-bill-wave" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Money Donation</Text>
                                    </View>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
                                    <View style={styles.cardContent} >
-                                        <FontAwesome5 name="hand-holding-heart" size={44} color={Color.white} />
+                                        <FontAwesome5 name="hand-holding-heart" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Others</Text>
                                    </View>
                               </TouchableOpacity>
@@ -166,12 +166,13 @@ const styles = StyleSheet.create({
 
      },
      card: {
-          backgroundColor: Color.primary,
+          borderColor: Color.primary,
           borderRadius: 10,
           padding: '5%',
           marginBottom: '5%',
           width: '40%',
           height: 150,
+          borderWidth: 1,
      },
      cardContent: {
           // flexDirection: 'row',
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
      },
      cardText: {
           fontSize: 18,
-          color: Color.textSecondary,
+          color: Color.textPrimary,
           marginLeft: '5%',
           textAlign: 'center',
           fontWeight: '600',

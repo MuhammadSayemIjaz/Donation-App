@@ -16,34 +16,27 @@ import { auth, db, firestoreDB } from '../config/firebase';
 import * as Location from 'expo-location';
 import { AuthContext } from '../context/AuthContext';
 
-const MoneyDonation = () => {
+const BloodDonation = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
      const [isLoading, setIsLoading] = useState(false);
      const initialState = {
-          amount: "50 Rs",
+          amount: "A",
      }
      const [state, setState] = useState(initialState);
+     const [selected, setSelected] = useState('+');
      const [error, setError] = useState({
           amount: '',
      });
-     const [selectedAmount, setSelectedAmount] = useState(null);
+     const [selectedAmount, setSelectedAmount] = useState("A");
 
-     const amounts = ["10 Rs", "50 Rs", "100 Rs", "500 Rs", "1000 Rs", "Other"];
+     const bloodGroups = ["A", "B", "O", "AB", "HH"];
 
      const handleAmountSelect = (amount) => {
           setSelectedAmount(amount);
-          if (amount === "Other") {
-               setState(prevState => ({
-                    ...prevState,
-                    amount: '',
-               }));
-          } else {
-               setState(prevState => ({
-                    ...prevState,
-                    amount: amount,
-               }));
-          }
+     };
+     const handlePress = (option) => {
+          setSelected(option);
      };
 
      const handleToast = (type, text1, text2) => {
@@ -58,32 +51,17 @@ const MoneyDonation = () => {
      const validateForm = () => {
           let errors = {};
           if (!selectedAmount) {
-               handleToast('error', 'Amount Not Selected', 'Please select amount to donate')
+               handleToast('error', 'Blood Group Not Selected', 'Please select Blood Group')
                return;
-          } else if (selectedAmount === "Other" && !state.amount) {
-               errors.amount = true;
-               handleToast('error', 'Amount', 'Amount is required')
           }
           setError(errors);
 
           return Object.keys(errors).length === 0;
      };
 
-     const handleInputChange = (name, value) => {
-          setState(prevState => ({
-               ...prevState,
-               [name]: value,
-          }));
-     };
-
-
      const handleSubmit = async () => {
           setIsLoading(true);
-          if (state.amount === "Other") {
-          navigation.navigate('MoneyDetails', { data: `${state.amount} Rs` });
-          } else {
-               navigation.navigate('MoneyDetails', { data: state.amount });
-          }
+          navigation.navigate('BloodDonarDetails', {data: `${selectedAmount} ${selected}`});
           setIsLoading(false);
      };
      return (
@@ -93,73 +71,53 @@ const MoneyDonation = () => {
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                          <Ionicons name="arrow-back" size={26} color={Color.textPrimary} />
                     </TouchableOpacity>
-                    <Text style={styles.heading1}>Money Donation</Text>
+                    <Text style={styles.heading1}>Pick up Your Blood Group</Text>
                </View>
                <View style={styles.subContainer}>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.header}>
                               {/* <Text style={styles.heading}>Send your donations at below bank account</Text> */}
                               <View style={styles.content}>
-                                   <View style={styles.bankContainer}>
-                                        <Text style={styles.bankLable}>Bank Account Details</Text>
-                                        <View style={styles.bankDetails}>
-                                             <View style={styles.bankDetail}>
-                                                  <FontAwesome name="bank" size={30} color={Color.primary} />
-                                                  <Text style={styles.bankText}> Bank Name: Habib Bank Limited </Text>
-                                             </View>
-                                             <View style={styles.bankDetail}>
-                                                  <FontAwesome name="university" size={30} color={Color.primary} />
-                                                  <Text style={styles.bankText}>Account Title: John Doe</Text>
-                                             </View>
-                                             <View style={styles.bankDetail}>
-                                                  <FontAwesome name="credit-card" size={30} color={Color.primary} />
-                                                  <Text style={styles.bankText}>Account No: 123456789</Text>
-                                             </View>
-                                             <View style={styles.bankDetail}>
-                                                  <FontAwesome name="money" size={30} color={Color.primary} />
-                                                  <Text style={styles.bankText}>IBAN: PK123456789</Text>
-                                             </View>
-                                        </View>
-                                   </View>
                                    <View style={styles.headingContainer}>
-                                        <Text style={styles.label}>Select Amount</Text>
                                         <View style={styles.amountContainer}>
-                                             {amounts.map((amount) => (
+                                             {bloodGroups.map((bloodgroup) => (
                                                   <TouchableOpacity
-                                                       key={amount} // Key for each item in the list
+                                                       key={bloodgroup}
                                                        style={[
                                                             styles.amountButton,
-                                                            selectedAmount === amount && styles.selectedAmount,
+                                                            selectedAmount === bloodgroup && styles.selectedAmount,
                                                        ]}
-                                                       onPress={() => handleAmountSelect(amount)}
+                                                       onPress={() => handleAmountSelect(bloodgroup)}
                                                   >
                                                        <Text style={[styles.amountText,
-                                                       selectedAmount === amount && { color: Color.white }
-                                                       ]}>{amount}</Text>
+                                                       selectedAmount === bloodgroup && { color: Color.white }
+                                                       ]}>{bloodgroup}</Text>
                                                   </TouchableOpacity>
                                              ))}
                                         </View>
                                    </View>
-                                   {selectedAmount === "Other" &&
-                                        <View style={styles.inputContainer}>
-                                             <CustomTextInput
-                                                  label="Custom Amount"
-                                                  placeholder="Enter Amount"
-                                                  keyboardType="number-pad"
-                                                  left={
-                                                       <TextInput.Icon iconColor={Color.primary} icon="currency-usd" size={30} />
-                                                  }
-                                                  value={selectedAmount === "Other" ? state.amount : ''}
-                                                  onChangeText={text => handleInputChange('amount', text)}
-                                                  error={!!error.amount && true}
-                                                  name="amount"
-                                             />
-                                        </View>
-                                   }
+                                   <View style={[styles.amountContainer, { marginTop: '20%' }]}>
+                                        <TouchableOpacity
+                                             style={[styles.signButton, selected === '+' && styles.selectedAmount]}
+                                             onPress={() => handlePress('+')}
+                                        >
+                                             <Text style={[styles.amountText,
+                                             selected === '+' && { color: Color.white }
+                                             ]}>+</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                             style={[styles.signButton, selected === '-' && styles.selectedAmount]}
+                                             onPress={() => handlePress('-')}
+                                        >
+                                             <Text style={[styles.amountText,
+                                             selected === '-' && { color: Color.white }
+                                             ]}>-</Text>
+                                        </TouchableOpacity>
+                                   </View>
                                    <View style={styles.btnContainer}>
                                         <TouchableOpacity onPress={handleSubmit}>
                                              <CustomeIconButton
-                                                  title="Enter Details"
+                                                  title="Continue"
                                                   isLoading={isLoading}
                                                   titleStyle={{ color: Color.textSecondary }}
                                                   style={styles.btn}
@@ -203,12 +161,12 @@ const styles = StyleSheet.create({
           justifyContent: 'center'
      },
      heading1: {
-          fontSize: 25,
+          fontSize: 23,
           color: Color.textPrimary,
           marginLeft: 'auto',
           marginRight: 'auto',
           fontWeight: '600',
-          letterSpacing: 1
+          // letterSpacing: 1
      },
      subHeading: {
           color: Color.heading2,
@@ -227,7 +185,7 @@ const styles = StyleSheet.create({
      },
      btnContainer: {
           width: '100%',
-          marginTop: '5%',
+          marginTop: '25%',
      },
      btn: {
           backgroundColor: Color.primary,
@@ -244,59 +202,37 @@ const styles = StyleSheet.create({
      amountContainer: {
           marginTop: '5%',
           flexDirection: 'row',
-          flexWrap: 'wrap', // Allows buttons to wrap to next line if needed
+          flexWrap: 'wrap',
+          gap: 10,
      },
      amountButton: {
-          width: '30%',
-          paddingVertical: '7%',
+          width: '45%',
+          paddingVertical: '9%',
           margin: 5,
           borderRadius: 5,
           alignItems: 'center',
-          backgroundColor: Color.white,
-          borderWidth: 1,
-          borderColor: Color.textGray,
+          backgroundColor: Color.secondary,
+     },
+     signButton: {
+          width: '25%',
+          paddingVertical: '5%',
+          margin: 5,
+          borderRadius: 5,
+          alignItems: 'center',
+          backgroundColor: Color.secondary,
      },
      selectedAmount: {
           backgroundColor: Color.primary,
      },
      amountText: {
-          fontSize: 20,
+          fontSize: 30,
           fontWeight: 'bold',
+          color: Color.primary
      },
      headingContainer: {
-          marginTop: '5%',
+          marginTop: '6%',
      },
-     bankContainer: {
-          width: '100%',
-          marginTop: '10%',
-     },
-     bankDetails: {
-          marginTop: '5%',
-          width: '100%',
-          // justifyContent: 'center',
-          // alignItems: 'center',
-     },
-     bankDetail: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          // justifyContent: 'center',
-          marginBottom: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: Color.textGray,
-          paddingBottom: 10,
-          gap: 10,
-     },
-     bankText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-     },
-     bankLable: {
-          fontSize: 23,
-          fontWeight: 'bold',
-          letterSpacing: 1,
-          color: Color.primary,
-     }
 
 });
 
-export default MoneyDonation;
+export default BloodDonation;

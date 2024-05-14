@@ -23,7 +23,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
 import { useRoute } from '@react-navigation/native';
-const MoneyDetails = () => {
+const BloodDonarDetails = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
      const route = useRoute();
@@ -38,11 +38,17 @@ const MoneyDetails = () => {
      const initialState = {
           title: '',
           desc: '',
+          donorName: '',
+          donorAge: '',
+          pickupAddress: ''
      }
      const [state, setState] = useState(initialState);
      const [error, setError] = useState({
           title: '',
           desc: '',
+          donorName: '',
+          donorAge: '',
+          pickupAddress: ''
      });
      const storage = getStorage();
      const metadata = {
@@ -63,12 +69,21 @@ const MoneyDetails = () => {
           if (!isImageSelected) {
                handleToast('error', 'Profile Image', 'Image Is required')
                return;
+          } else if (!state.donorName) {
+               errors.desc = true;
+               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
+          } else if (!state.donorAge) {
+               errors.desc = true;
+               handleToast('error', 'Donor Age', 'Please Enter Donor Age.')
+          } else if (!state.pickupAddress) {
+               errors.desc = true;
+               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
           } else if (!state.title) {
                errors.title = true;
                handleToast('error', 'Title', 'Please Enter Title of Donation')
           } else if (!state.desc) {
                errors.desc = true;
-               handleToast('error', 'Description', 'Please Enter Description of Donation')
+               handleToast('error', 'Description', 'Please Enter Description of Donation.')
           } else if (!location) {
                handleToast('error', 'Location', 'Location is required')
           }
@@ -138,7 +153,7 @@ const MoneyDetails = () => {
 
           // upload image on firebase storage 
 
-          const storageRef = ref(storage, 'User Money Donation Invoices/' + Date.now());
+          const storageRef = ref(storage, 'Donor Blood Reports/' + Date.now());
           const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
 
           uploadTask.on('state_changed',
@@ -153,7 +168,7 @@ const MoneyDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", user), { image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'money', amount : data, status: 'PENDING' })
+                         setDoc(doc(firestoreDB, "Donations", user), { image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING' })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -188,7 +203,7 @@ const MoneyDetails = () => {
                          <TouchableOpacity onPress={() => navigation.goBack()}>
                               <Ionicons name="arrow-back" size={26} color={Color.textPrimary} />
                          </TouchableOpacity>
-                         <Text style={styles.heading}>Donation Details</Text>
+                         <Text style={styles.heading}>Blood Donor Details</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.header}>
@@ -204,13 +219,36 @@ const MoneyDetails = () => {
                                                   :
                                                   <View style={styles.inactiveImageContainer}>
                                                        <Feather name="image" size={54} color={Color.primary} />
-                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Donation Payment Invoice</Text>
+                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Blood Test Report</Text>
                                                        {/* <FontAwesome name="user-circle-o" size={154}  /> */}
                                                   </View>
                                              }
                                         </TouchableOpacity>
                                    </View>
                                    <View style={styles.inputContainer}>
+                                        <CustomTextInput
+                                             label="Donor Name"
+                                             placeholder="Enter Donor Name"
+                                             value={state.donorName}
+                                             onChangeText={text => handleInputChange('donorName', text)}
+                                             error={!!error.donorName && true}
+                                        />
+                                        <CustomTextInput
+                                             label="Donor Age"
+                                             placeholder="Enter Donor Age"
+                                             value={state.donorAge}
+                                             onChangeText={text => handleInputChange('donorAge', text)}
+                                             error={!!error.donorAge && true}
+                                             keyboardType="phone-pad"
+                                             maxLength={3}
+                                        />
+                                        <CustomTextInput
+                                             label="Pickup Address"
+                                             placeholder="Enter Pickup Address"
+                                             value={state.pickupAddress}
+                                             onChangeText={text => handleInputChange('pickupAddress', text)}
+                                             error={!!error.pickupAddress && true}
+                                        />
                                         <CustomTextInput
                                              label="Title"
                                              placeholder="Enter Donation Title"
@@ -355,4 +393,4 @@ const styles = StyleSheet.create({
      }
 });
 
-export default MoneyDetails;
+export default BloodDonarDetails;

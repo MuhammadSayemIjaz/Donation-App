@@ -22,7 +22,6 @@ const Home = ({ navigation }) => {
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
-     console.log("activeUser", activeUser);
      //     const getDriverLocation = () => {
      //         const driverRef = DBRef(db, `drivers/${activeUser?.uid}`);
      //         onValue(driverRef, (snapshot) => {
@@ -70,6 +69,7 @@ const Home = ({ navigation }) => {
           querySnapshot.forEach((doc) => {
                donations.push(doc.data());
           });
+          // console.log(donations);
           setDonation([...donations]);
           setIsLoading(false)
      };
@@ -165,13 +165,13 @@ const Home = ({ navigation }) => {
                                                   <View style={styles.card}>
                                                        <View style={styles.iconContainer}>
                                                             <View style={styles.logoimage}>
-                                                                 <Image style={styles.logoimage} resizeMode="contain" source={{ uri: donation?.userProfileImage }} />
+                                                                 <Image style={styles.logoimage} resizeMode="contain" source={{ uri: activeUser?.photoURL }} />
                                                             </View>
                                                        </View>
                                                        <View style={styles.cardTextContainer}>
-                                                            <Text style={styles.cardSubHeading}>Ride Status : {startCase(donation?.status)}</Text>
+                                                            <Text style={styles.cardSubHeading}>{startCase(donation?.title)}</Text>
                                                             <View style={styles.cardHeaderContainer}>
-                                                                 <Text style={styles.cardText}>{new Date(donation?.createdAt).toLocaleDateString()}</Text>
+                                                                 <Text style={styles.cardText}>{new Date(donation?.dateCreated).toLocaleDateString()}</Text>
                                                             </View>
                                                        </View>
                                                   </View>
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
           height: '100%'
      },
      cardSubHeading: {
-          fontSize: 20,
+          fontSize: 15,
           letterSpacing: 1,
      },
      cardText: {
