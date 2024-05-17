@@ -11,6 +11,8 @@ import MoneyDonation from '../screens/MoneyDonation';
 import MoneyDetails from '../screens/MoneyDetails';
 import BloodDonation from '../screens/BloodDonation';
 import BloodDonarDetails from '../screens/BloodDonarDetails';
+import DonationsSearchList from '../screens/DonationsSearchList';
+import DonationDetails from '../screens/DonationDetails';
 const Stack = createStackNavigator();
 
 const AppNavigation = () => {
@@ -28,6 +30,8 @@ const AppNavigation = () => {
                     <Stack.Screen name="MoneyDetails" component={MoneyDetails}  options={{headerShown: false}}/>
                     <Stack.Screen name="BloodDonation" component={BloodDonation}  options={{headerShown: false}}/>
                     <Stack.Screen name="BloodDonarDetails" component={BloodDonarDetails}  options={{headerShown: false}}/>
+                    <Stack.Screen name="DonationsSearchList" component={DonationsSearchList}  options={{headerShown: false}}/>
+                    <Stack.Screen name="DonationDetails" component={DonationDetails}  options={{headerShown: false}}/>
                     {/* <Stack.Screen name="Home" component={Home} options={{headerShown: false}} /> */}
                     {/* <Stack.Screen name="About" component={About} 
                     options={{

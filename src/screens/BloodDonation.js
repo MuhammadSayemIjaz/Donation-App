@@ -61,7 +61,7 @@ const BloodDonation = () => {
 
      const handleSubmit = async () => {
           setIsLoading(true);
-          navigation.navigate('BloodDonarDetails', {data: `${selectedAmount} ${selected}`});
+          navigation.navigate('BloodDonarDetails', {data: `${selectedAmount}${selected}`});
           setIsLoading(false);
      };
      return (

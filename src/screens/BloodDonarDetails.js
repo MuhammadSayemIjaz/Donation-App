@@ -13,7 +13,7 @@ import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 // import { useIsConnected } from 'react-native-offline';
 import { ref as dbRef, set } from 'firebase/database';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite';
+import { doc, setDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore/lite';
 import { ref, getStorage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, db, firestoreDB } from '../config/firebase';
 import * as Location from 'expo-location';
@@ -40,7 +40,8 @@ const BloodDonarDetails = () => {
           desc: '',
           donorName: '',
           donorAge: '',
-          pickupAddress: ''
+          quantity: '',
+          pickupAddress: '',
      }
      const [state, setState] = useState(initialState);
      const [error, setError] = useState({
@@ -48,6 +49,7 @@ const BloodDonarDetails = () => {
           desc: '',
           donorName: '',
           donorAge: '',
+          quantity: '',
           pickupAddress: ''
      });
      const storage = getStorage();
@@ -78,6 +80,9 @@ const BloodDonarDetails = () => {
           } else if (!state.pickupAddress) {
                errors.desc = true;
                handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
+          } else if (!state.quantity) {
+               errors.desc = true;
+               handleToast('error', 'Quantity', 'Please Enter Quantity.')
           } else if (!state.title) {
                errors.title = true;
                handleToast('error', 'Title', 'Please Enter Title of Donation')
@@ -168,7 +173,7 @@ const BloodDonarDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", user), { image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING' })
+                         addDoc(collection(firestoreDB, "Donations"), { donorImage: activeUser?.photoURL  ,image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data : data })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -248,6 +253,15 @@ const BloodDonarDetails = () => {
                                              value={state.pickupAddress}
                                              onChangeText={text => handleInputChange('pickupAddress', text)}
                                              error={!!error.pickupAddress && true}
+                                        />
+                                         <CustomTextInput
+                                             label="Quantity"
+                                             placeholder="Enter Quantity"
+                                             value={state.quantity}
+                                             onChangeText={text => handleInputChange('quantity', text)}
+                                             error={!!error.quantity && true}
+                                             keyboardType="phone-pad"
+                                             maxLength={3}
                                         />
                                         <CustomTextInput
                                              label="Title"

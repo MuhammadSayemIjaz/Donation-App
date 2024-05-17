@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [coords, setCoords] = useState({}) ;
   const [activeUser, setActiveUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, user => {
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ coords, setCoords,  activeUser, setActiveUser, role, setRole }}>
+    <AuthContext.Provider value={{ coords, setCoords,  activeUser, setActiveUser, role, setRole,userData, setUserData }}>
       {children}
     </AuthContext.Provider>
   );

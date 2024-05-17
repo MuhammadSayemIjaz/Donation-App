@@ -14,7 +14,7 @@ import { auth, firestoreDB } from '../../config/firebase';
 import { getDoc, doc, collection } from 'firebase/firestore/lite';
 
 const Login = () => {
-  const { activeUser, setActiveUser, setRole } = useContext(AuthContext);
+  const { activeUser, setActiveUser, setRole, setUserData } = useContext(AuthContext);
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +47,7 @@ const Login = () => {
     if (querySnapshot.exists()) {
       const data = querySnapshot.data();
       setRole(data.role)
+      setUserData(data);
     }
   };
 
@@ -76,9 +77,8 @@ const Login = () => {
           handleToast("success", "Login User", "User Login Successfully")
           // setRole("Receiver")
           setActiveUser(user)
-          setIsLoading(false)
           readDocs(userCredential.user.uid)
-          console.log(userCredential.user.uid);
+          setIsLoading(false)
           navigation.navigate('TABS')
         })
         .catch((error) => {

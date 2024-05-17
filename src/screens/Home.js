@@ -15,10 +15,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/database';
 import { Fontisto } from '@expo/vector-icons';
+import { where } from 'firebase/firestore';
 
 
 const Home = ({ navigation }) => {
-     const { activeUser } = useContext(AuthContext)
+     const { activeUser, userData } = useContext(AuthContext);
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
@@ -36,8 +37,9 @@ const Home = ({ navigation }) => {
      //     }
      const collectionName = "Donations";
      const collectionRef = collection(firestoreDB, collectionName);
-     const ambuQuerry = query(collectionRef, limit(3))
+     const ambuQuerry = query(collectionRef, where("uid", "==" ,activeUser?.uid) , limit(3))
 
+     console.log("userData", userData);
      //     const getPreviousRides = () => {
      //         setIsLoading(true)
      //         const ridesRef = ref(db, `bookings/${activeUser?.uid}`, limit(3));
@@ -97,7 +99,7 @@ const Home = ({ navigation }) => {
                     <Text style={{ fontSize: 25, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Hello, {activeUser?.displayName}</Text>
                     <Text style={{ marginTop: '3%', letterSpacing: 1, color: Color.textSecondary, fontSize: 17 }}>What do you wanna donate today? </Text>
                </View>
-               <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('PreviousRides')}>
+               <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DonationsSearchList')}>
                     <View style={styles.searchContainer}>
                          <View style={styles.searchBar}>
                               <Ionicons name="search-outline" size={22} color={Color.primary} />
