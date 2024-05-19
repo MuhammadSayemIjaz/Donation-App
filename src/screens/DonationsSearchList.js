@@ -109,7 +109,7 @@ const DonationsSearchList = () => {
                                                   donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
                                                   donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
                                                   donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
-                                                  donation?.status === 'COMPLETED' && { backgroundColor: 'blue' }
+                                                  donation?.status === 'COMPLETED' && { backgroundColor: '#00BFFE' }
                                                   ]} key={donation.uid}>
                                                        {/* <View style={styles.iconContainer}>
                                                             <View style={styles.logoimage}>

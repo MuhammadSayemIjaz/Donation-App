@@ -4,20 +4,13 @@ import { Color } from '../../GlobalStyles';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
-import { Octicons } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { firestoreDB } from '../config/firebase';
-import { collection, getDocs, limit, query } from "firebase/firestore/lite";
-import { ActivityIndicator } from 'react-native-paper';
-import { isEmpty, startCase } from 'lodash';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/database';
-import { Fontisto } from '@expo/vector-icons';
 import { where } from 'firebase/firestore';
 import VerificationModel from '../components/VerificationModel';
 import CustomeIconButton from '../components/CustomeIconButton';
+import ImageView from "react-native-image-viewing";
 
 const DonationDetails = ({ navigation, route }) => {
      console.log(route.params.item);
@@ -30,7 +23,19 @@ const DonationDetails = ({ navigation, route }) => {
      const [state, setState] = useState({});
      const [isModalVisible, setModalVisible] = useState(false);
      const [donationStatus, setDonationStatus] = useState('PENDING');
-
+     const [visible, setIsVisible] = useState(false);
+     const [images, setImages] = useState([]);
+     // const images = [
+     //      {
+     //           uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
+     //      },
+     //      {
+     //           uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
+     //      },
+     //      {
+     //           uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+     //      },
+     // ];
      const timestampObject = item.dateCreated;
 
      // Combine seconds and nanoseconds into milliseconds
@@ -53,13 +58,18 @@ const DonationDetails = ({ navigation, route }) => {
      const formattedTime = `${hours?.toString().padStart(2, '0')}:${minutes?.toString().padStart(2, '0')}:${seconds?.toString().padStart(2, '0')}.${millisecondsFormatted}`;
      const formattedDateTime = `${formattedDate} ${formattedTime}`;
 
-     console.log("Date:", formattedDate);
-     console.log("Time:", formattedTime);
-     console.log("Date and Time:", formattedDateTime);
 
      const handleToggle = (status) => {
           setDonationStatus(status);
           setModalVisible(!isModalVisible);
+     }
+     const handleImageView = (image) => {
+          setImages([
+               {
+                    uri: image,
+               },
+          ]);
+          setIsVisible(true);
      }
      // console.log("activeUser", activeUser);
      //     const getDriverLocation = () => {
@@ -138,42 +148,50 @@ const DonationDetails = ({ navigation, route }) => {
                                    <Text style={styles.desc}>{item?.desc}</Text>
                               </View>
                               <Text style={[styles.title, { marginTop: '5%' }]}>Donor Details</Text>
-                              <View style={{ marginTop: '2%', flexDirection: 'row', alignItems: 'center' }}>
-                                   <Text style={styles.desc}>Pickup Address : <Text style={{ fontWeight: '600' }}>{item?.pickupAddress}</Text></Text>
-                              </View>
+                              {item?.pickupAddress &&
+                                   <View style={{ marginTop: '2%', flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={styles.desc}>Pickup Address : <Text style={{ fontWeight: '600' }}>{item?.pickupAddress}</Text></Text>
+                                   </View>
+                              }
+
                               <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Date: </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{formattedDate} </Text>
                               </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                                   <Text style={styles.desc}>Blood Group: </Text>
-                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.data}</Text>
+                              {
+                                   item?.type === 'blood' && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Blood Group: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.data}</Text>
+                                   </View>
+                              }
 
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              {item?.quantity && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Quantity : </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.quantity}</Text>
-
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              </View>}
+                              {item?.type === 'money' && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Charity : </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.amount}.</Text>
+                              </View>}
+                              {item?.donorName && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Donor Name: </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorName} Years</Text>
-
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                                   <Text style={styles.desc}>Donor Age: </Text>
-                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorAge} Years</Text>
-
-                              </View>
+                              </View>}
+                              {item?.donorAge &&
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Donor Age: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorAge} Years</Text>
+                                   </View>
+                              }
                               <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                                    <Text style={styles.desc}>Donor Image: </Text>
-                                   <View style={styles.imageContainer1}>
+                                   <TouchableOpacity style={styles.imageContainer1} onPress={() => handleImageView(item?.donorImage)}>
                                         <Image source={{ uri: item?.donorImage }} style={styles.image1} />
-                                   </View>
+                                   </TouchableOpacity>
                               </View>
-                              <View style={styles.imageContainer}>
+                              <TouchableOpacity style={styles.imageContainer} onPress={() => handleImageView(item?.image)}>
                                    <Image source={{ uri: item?.image }} style={styles.image} />
-                              </View>
+                              </TouchableOpacity>
                               {
                                    (role.toLowerCase() === 'admin' && item?.status === 'PENDING') && <CustomeIconButton
                                         leftIcon={
@@ -188,7 +206,7 @@ const DonationDetails = ({ navigation, route }) => {
                                    />
                               }
                               {
-                                   ( item?.status === 'APPROVED') && <CustomeIconButton
+                                   (role.toLowerCase() === 'receiver' && item?.status === 'APPROVED') && <CustomeIconButton
                                         leftIcon={
                                              <FontAwesome6 name="file-circle-check" size={24} color={Color.primary} />
                                         }
@@ -200,7 +218,12 @@ const DonationDetails = ({ navigation, route }) => {
                                         onPress={() => handleToggle('COMPLETED')}
                                    />
                               }
-
+                              <ImageView
+                                   images={images}
+                                   imageIndex={0}
+                                   visible={visible}
+                                   onRequestClose={() => setIsVisible(false)}
+                              />
                               <VerificationModel isModalVisible={isModalVisible} toggleModal={handleToggle} donationId={item?.donationId} donationStatus={donationStatus} />
                          </View>
                     </ScrollView>

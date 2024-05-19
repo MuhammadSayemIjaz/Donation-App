@@ -16,10 +16,11 @@ import { AuthContext } from '../context/AuthContext';
 import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/database';
 import { Fontisto } from '@expo/vector-icons';
 import { where } from 'firebase/firestore';
+import { getFormatedDate, getFormatedTime } from '../utils/functions';
 
 
 const Home = ({ navigation }) => {
-     const { activeUser, userData } = useContext(AuthContext);
+     const { activeUser, userData, role } = useContext(AuthContext);
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
@@ -37,7 +38,12 @@ const Home = ({ navigation }) => {
      //     }
      const collectionName = "Donations";
      const collectionRef = collection(firestoreDB, collectionName);
-     const ambuQuerry = query(collectionRef, where("uid", "==" ,activeUser?.uid) , limit(3))
+     const ambuQuerry = role?.toLowerCase() == 'donor' ?
+          query(collectionRef, where("uid", "==", activeUser.uid), limit(3))
+          :
+          role?.toLowerCase() == 'receiver' ?
+               query(collectionRef, where("status", "==", "APPROVED"), limit(3)) :
+               query(collectionRef, limit(3));
 
      console.log("userData", userData);
      //     const getPreviousRides = () => {
@@ -113,24 +119,24 @@ const Home = ({ navigation }) => {
                <View style={{ paddingHorizontal: '5%', paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Categories</Text>
                     {/* <TouchableOpacity activeOpacity={0.5} > */}
-                         <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
+                    <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
                     {/* </TouchableOpacity> */}
                </View>
                <View style={styles.card2}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DriverHospitalAccountDetails')}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('MoneyDonation')}>
                          <View style={styles.subcard}>
                               <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('CurrentLocationMap', { currentLocation: state })}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('CurrentLocationMap')}>
                          <View style={styles.subcard}>
                               <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
                               {/* <Entypo name="location"  /> */}
                               {/* <Text style={styles.cardtext}>Current Location</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DriverNotification')}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BloodDonation')}>
                          <View style={styles.subcard}>
                               <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>Notifications</Text> */}
@@ -144,14 +150,14 @@ const Home = ({ navigation }) => {
                     </TouchableOpacity>
                </View>
                <View style={styles.header}>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                         <View style={styles.mainTextContainer}>
-                              <Text style={styles.text}>Previous Donations</Text>
-                              <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('PreviousRides')}>
-                                   <Text style={styles.text}>See All</Text>
-                              </TouchableOpacity>
+                    <View style={styles.mainTextContainer}>
+                         <Text style={styles.text}>Previous Donations</Text>
+                         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DriverAccountDetails')}>
+                              <Text style={styles.text}>See All</Text>
+                         </TouchableOpacity>
 
-                         </View>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.bottomContainer}>
                               {isLoading ?
                                    (<View style={styles.loadingContainer}>
@@ -164,19 +170,45 @@ const Home = ({ navigation }) => {
                                         </View> :
                                         donation.map((donation, ind) => (
                                              <View key={ind}>
-                                                  <View style={styles.card}>
-                                                       <View style={styles.iconContainer}>
+                                                  <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
+                                                       <View style={[styles.card,
+                                                       donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
+                                                       donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
+                                                       donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
+                                                       donation?.status === 'COMPLETED' && { backgroundColor: '#00BFFE' }
+                                                       ]} key={donation.uid}>
+                                                            {/* <View style={styles.iconContainer}>
                                                             <View style={styles.logoimage}>
-                                                                 <Image style={styles.logoimage} resizeMode="contain" source={{ uri: activeUser?.photoURL }} />
+                                                                 <Image style={styles.logoimage} resizeMode="contain" source={{ uri: donation?.donorImage }} />
+                                                            </View>
+                                                       </View> */}
+                                                            <View style={styles.cardHeader}>
+                                                                 <Text style={styles.cardHeaderText}>Posted On : {donation?.dateCreated && getFormatedDate(donation?.dateCreated)} </Text>
+                                                                 <Text style={styles.cardHeaderText}>{donation?.dateCreated && getFormatedTime(donation?.dateCreated)} </Text>
+                                                            </View>
+                                                            <View style={styles.cardMainContainer}>
+                                                                 <View style={styles.cardTextContainer}>
+                                                                      <Text style={styles.cardText}>{donation?.title}</Text>
+                                                                      <Text style={styles.cardSubHeading}>{donation?.desc}</Text>
+                                                                      {/* <Text style={styles.cardSubHeading}>{donation?.type?.toUpperCase()}</Text> */}
+                                                                 </View>
+                                                                 <View style={styles.iconContainer}>
+                                                                      <Text style={styles.icon}>{donation?.data}</Text>
+                                                                      {/* <Entypo name="chevron-right" size={28} color={Color.primary} /> */}
+
+                                                                 </View>
+                                                            </View>
+                                                            <View style={styles.cardFooterContainer}>
+                                                                 <Text style={styles.type}>{donation?.type}</Text>
+                                                                 <Text style={[styles.status,
+                                                                 donation?.status === 'PENDING' && { backgroundColor: 'white' } ||
+                                                                 donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
+                                                                 donation?.status === 'REJECTED' && { backgroundColor: 'white' } ||
+                                                                 donation?.status === 'COMPLETED' && { backgroundColor: 'white' }
+                                                                 ]}>{donation?.status}</Text>
                                                             </View>
                                                        </View>
-                                                       <View style={styles.cardTextContainer}>
-                                                            <Text style={styles.cardSubHeading}>{startCase(donation?.title)}</Text>
-                                                            <View style={styles.cardHeaderContainer}>
-                                                                 <Text style={styles.cardText}>{new Date(donation?.dateCreated).toLocaleDateString()}</Text>
-                                                            </View>
-                                                       </View>
-                                                  </View>
+                                                  </TouchableOpacity>
                                              </View>
                                         ))
                                    )}
@@ -277,16 +309,6 @@ const styles = StyleSheet.create({
           paddingHorizontal: '5%',
           gap: 15,
      },
-     card3: {
-          borderWidth: 2,
-          borderColor: Color.borderColor,
-          marginTop: 5,
-          width: '100%',
-          height: 80,
-          backgroundColor: Color.textSecondary,
-          borderRadius: 20,
-          justifyContent: 'space-evenly',
-     },
      subcard: {
           width: 80,
           height: 80,
@@ -332,70 +354,114 @@ const styles = StyleSheet.create({
           fontSize: 20,
           textAlign: 'center'
      },
+     bottomContainer: {
+          marginTop: '5%',
+     },
+     cardConatiner: {
+          // marginTop: '5%',
+          marginBottom: '20%',
+          height: '100%'
+     },
+     cardHeaderText: {
+          color: Color.textPrimary,
+          fontSize: 15,
+     },
      card: {
-          borderWidth: 2,
-          borderColor: Color.borderColor,
-          borderRadius: 20,
+          // borderColor: Color.borderColor,
+          backgroundColor: Color.secondary,
+          borderRadius: 10,
           width: '100%',
+          // minHeight: 94,
+          // maxHeight: 130,
+          marginBottom: '5%'
+     },
+     cardHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          paddingHorizontal: '3%',
+          paddingVertical: '2%',
+          borderRadius: 10,
+
+
+     },
+     cardMainContainer: {
           flexDirection: 'row',
           alignItems: 'center',
-          height: 100,
-          padding: '5%',
+          marginTop: '2%',
+          paddingHorizontal: '5%'
+     },
+     cardFooterContainer: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: '5%',
+          paddingBottom: '5%',
+          borderRadius: 10,
+     },
+     type: {
+          fontSize: 18,
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          paddingHorizontal: '5%',
+          paddingVertical: '2%',
+          borderRadius: 10,
+          backgroundColor: Color.primary,
+          color: Color.white
+     },
+     status: {
+          fontSize: 18,
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          paddingHorizontal: '5%',
+          paddingVertical: '2%',
+          borderRadius: 10,
      },
      iconContainer: {
           width: '20%',
-          justifyContent: 'center',
+          // justifyContent: 'center',
           alignItems: 'center',
           height: '100%',
+     },
+     icon: {
+          color: Color.primary,
+          fontSize: 20,
+          fontWeight: '800'
      },
      logoimage: {
           borderColor: Color.borderColor,
-          borderRadius: 10,
+          borderRadius: 60,
           width: '100%',
-          height: 70,
-          width: 70,
+          height: 60,
+          width: 60,
      },
+
      cardTextContainer: {
-          width: '76%',
-          marginLeft: '5%',
-          height: '100%'
+          width: '85%',
      },
-     cardSubHeading: {
-          fontSize: 15,
-          letterSpacing: 1,
+     heading: {
+          marginTop: '10%',
+          color: Color.textPrimary,
+          fontSize: 20,
+          textAlign: 'center',
+          letterSpacing: 2
+     },
+     subHeading: {
+          color: Color.textGray,
+          fontWeight: '400',
+          fontSize: 20,
+          textAlign: 'center'
      },
      cardText: {
-          color: Color.heading1,
-          fontSize: 20,
-          textShadowColor: 'rgba(0, 0, 0, 0.2)',
-          textShadowRadius: 10,
-     },
-     cardHeaderContainer: {
-          flexDirection: 'row',
-          marginBottom: 2,
-     },
-     bottomContainer: {
-          marginTop: '5%',
-          gap: 10
-     },
-     userimage: {
-          height: 20,
-          width: 30,
+          color: Color.textPrimary,
+          fontSize: 18,
+          fontWeight: '600',
+          // textShadowColor: 'rgba(0, 0, 0, 0.2)',
+          // textShadowRadius: 10,
 
-     },
-     imageContainer: {
-          height: 300,
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '10%'
-     },
-     image: {
-          width: '100%',
-          height: '100%',
-          borderRadius: 10,
-          justifyContent: 'center',
-          alignItems: 'center',
      },
      loadingContainer: {
           height: 300,

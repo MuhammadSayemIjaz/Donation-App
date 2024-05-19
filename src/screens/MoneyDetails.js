@@ -23,6 +23,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
 import { useRoute } from '@react-navigation/native';
+import { generateAutoNumber } from '../utils/functions';
 const MoneyDetails = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
@@ -135,6 +136,7 @@ const MoneyDetails = () => {
           // register users in firebase authentication
           const user = activeUser.uid;
           const userData = activeUser;
+          const dontaionId = generateAutoNumber(15);
 
           // upload image on firebase storage 
 
@@ -153,7 +155,7 @@ const MoneyDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", user), { image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'money', amount : data, status: 'PENDING' })
+                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'money', amount: data, status: 'PENDING', donationId: dontaionId })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
