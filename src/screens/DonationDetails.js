@@ -16,15 +16,20 @@ import { AuthContext } from '../context/AuthContext';
 import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/database';
 import { Fontisto } from '@expo/vector-icons';
 import { where } from 'firebase/firestore';
-
+import VerificationModel from '../components/VerificationModel';
+import CustomeIconButton from '../components/CustomeIconButton';
 
 const DonationDetails = ({ navigation, route }) => {
      console.log(route.params.item);
+     console.log(route);
+     const { role } = useContext(AuthContext);
      const { item } = route.params;
      const { activeUser } = useContext(AuthContext)
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
+     const [isModalVisible, setModalVisible] = useState(false);
+     const [donationStatus, setDonationStatus] = useState('PENDING');
 
      const timestampObject = item.dateCreated;
 
@@ -44,13 +49,18 @@ const DonationDetails = ({ navigation, route }) => {
      const millisecondsFormatted = date.getMilliseconds().toString().padStart(3, '0'); // Pad with leading zeros
 
      // Format the date and time according to your desired format
-     const formattedDate = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
-     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${millisecondsFormatted}`;
+     const formattedDate = `${month?.toString().padStart(2, '0')}/${day?.toString().padStart(2, '0')}/${year}`;
+     const formattedTime = `${hours?.toString().padStart(2, '0')}:${minutes?.toString().padStart(2, '0')}:${seconds?.toString().padStart(2, '0')}.${millisecondsFormatted}`;
      const formattedDateTime = `${formattedDate} ${formattedTime}`;
 
      console.log("Date:", formattedDate);
      console.log("Time:", formattedTime);
      console.log("Date and Time:", formattedDateTime);
+
+     const handleToggle = (status) => {
+          setDonationStatus(status);
+          setModalVisible(!isModalVisible);
+     }
      // console.log("activeUser", activeUser);
      //     const getDriverLocation = () => {
      //         const driverRef = DBRef(db, `drivers/${activeUser?.uid}`);
@@ -114,36 +124,84 @@ const DonationDetails = ({ navigation, route }) => {
                          </TouchableOpacity>
                          <Text style={styles.heading}>Donation Details</Text>
                     </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: '5%' }}>
+                         <Text style={styles.baner}>Type : {item?.type?.toUpperCase()}</Text>
+                         <Text style={[styles.baner,
+                         { backgroundColor: item?.status === 'REJECTED' ? 'red' : item?.status === 'APPROVED' ? 'green' : item?.status === 'COMPLETED' ? 'blue' : 'orange' }
+                         ]}>{item?.status?.toUpperCase()}</Text>
+                    </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.content}>
+
                               <View >
                                    <Text style={styles.title}>{item?.title}</Text>
                                    <Text style={styles.desc}>{item?.desc}</Text>
                               </View>
-                              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: '5%' }}>
-                                   <Text style={styles.baner}>Type : {item?.type?.toUpperCase()}</Text>
-                                   <Text style={[styles.baner,
-                                   { backgroundColor: item?.status === 'pending' ? 'red' : item?.status === 'completed' ? 'green' : 'orange' }
-                                   ]}>{item?.status?.toUpperCase()}</Text>
+                              <Text style={[styles.title, { marginTop: '5%' }]}>Donor Details</Text>
+                              <View style={{ marginTop: '2%', flexDirection: 'row', alignItems: 'center' }}>
+                                   <Text style={styles.desc}>Pickup Address : <Text style={{ fontWeight: '600' }}>{item?.pickupAddress}</Text></Text>
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Date: </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{formattedDate} </Text>
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Blood Group: </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.data}</Text>
+
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Quantity : </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.quantity}</Text>
+
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Donor Name: </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorName} Years</Text>
+
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <Text style={styles.desc}>Donor Age: </Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorAge} Years</Text>
+
+                              </View>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
+                                   <Text style={styles.desc}>Donor Image: </Text>
+                                   <View style={styles.imageContainer1}>
+                                        <Image source={{ uri: item?.donorImage }} style={styles.image1} />
+                                   </View>
                               </View>
                               <View style={styles.imageContainer}>
                                    <Image source={{ uri: item?.image }} style={styles.image} />
                               </View>
-                              <Text style={styles.title}>Donation Details</Text>
-                              <View style={{ marginTop: '2%', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                   <FontAwesome6 name="location-dot" size={24} color={Color.primary} />
-                                   <Text style={styles.desc}>Pickup Address : {item?.pickupAddress}</Text>
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                   <Text style={styles.desc}>Date: {formattedDate}</Text>
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                                   <Text style={styles.desc}>Blood Group:</Text>
-                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.data}</Text>
-                              </View>
-                              <View style={{ marginTop: '4%', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                   <Text style={styles.desc}>Donor Age: {formattedDate}</Text>
-                              </View>
+                              {
+                                   (role.toLowerCase() === 'admin' && item?.status === 'PENDING') && <CustomeIconButton
+                                        leftIcon={
+                                             <FontAwesome6 name="file-circle-check" size={24} color={Color.primary} />
+                                        }
+                                        title={"Verify Document"}
+                                        style={styles.btn}
+                                        titleStyle={{
+                                             color: Color.primary
+                                        }}
+                                        onPress={() => handleToggle('APPROVED')}
+                                   />
+                              }
+                              {
+                                   ( item?.status === 'APPROVED') && <CustomeIconButton
+                                        leftIcon={
+                                             <FontAwesome6 name="file-circle-check" size={24} color={Color.primary} />
+                                        }
+                                        title={"Received Donation"}
+                                        style={styles.btn}
+                                        titleStyle={{
+                                             color: Color.primary
+                                        }}
+                                        onPress={() => handleToggle('COMPLETED')}
+                                   />
+                              }
+
+                              <VerificationModel isModalVisible={isModalVisible} toggleModal={handleToggle} donationId={item?.donationId} donationStatus={donationStatus} />
                          </View>
                     </ScrollView>
                </View>
@@ -175,7 +233,7 @@ const styles = StyleSheet.create({
      },
      content: {
           flex: 1,
-          paddingTop: '10%'
+          // paddingTop: '10%'
 
      },
      imageContainer: {
@@ -185,7 +243,19 @@ const styles = StyleSheet.create({
           // borderWidth: 1,
           height: 350,
      },
+     imageContainer1: {
+          width: 90,
+          height: 90,
+
+     },
      image: {
+          width: '100%',
+          aspectRatio: 1,
+          objectFit: 'fill',
+          height: '100%',
+          borderRadius: 10
+     },
+     image1: {
           width: '100%',
           aspectRatio: 1,
           objectFit: 'fill',
@@ -211,6 +281,10 @@ const styles = StyleSheet.create({
           paddingVertical: 10,
           borderRadius: 5,
           fontWeight: '600'
+     },
+     btn: {
+          borderWidth: 1,
+          borderColor: Color.primary,
      }
 });
 

@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore/lite";
+import { getFirestore as getFirestore1 } from "firebase/firestore";
 // import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -18,14 +19,7 @@ const firebaseConfig = {
   messagingSenderId: "647703580129",
   appId: "1:647703580129:web:a7e61e67b8bd4cdb2156a0",
   measurementId: "G-1RJT4XJ2Y9"
-     // apiKey: "AIzaSyCskyPGhJ4KrWWpWoTbnhhw9AvBEWaVs7g",
-     // authDomain: "ambutrack-2e076.firebaseapp.com",
-     // projectId: "ambutrack-2e076",
-     // storageBucket: "ambutrack-2e076.appspot.com",
-     // messagingSenderId: "198314085753",
-     // appId: "1:198314085753:web:88a7bf86f2b882cd0ef3a8",
-     // measurementId: "G-JMCQSSBYSQ",
-     // databaseURL: "https://ambutrack-2e076-default-rtdb.asia-southeast1.firebasedatabase.app"
+
 };
 
 // Initialize Firebase
@@ -36,4 +30,5 @@ const auth = getAuth(app)
 // }));
 const db = getDatabase(app);
 const firestoreDB = getFirestore(app);
-export { auth, db, firestoreDB };
+const firestoreDB1 = getFirestore1(app);
+export { auth, db, firestoreDB, firestoreDB1 };

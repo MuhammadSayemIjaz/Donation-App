@@ -23,6 +23,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
 import { useRoute } from '@react-navigation/native';
+import { generateAutoNumber } from '../utils/functions';
 const BloodDonarDetails = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
@@ -155,7 +156,7 @@ const BloodDonarDetails = () => {
           // register users in firebase authentication
           const user = activeUser.uid;
           const userData = activeUser;
-
+          const dontaionId = generateAutoNumber(15);
           // upload image on firebase storage 
 
           const storageRef = ref(storage, 'Donor Blood Reports/' + Date.now());
@@ -173,7 +174,7 @@ const BloodDonarDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         addDoc(collection(firestoreDB, "Donations"), { donorImage: activeUser?.photoURL  ,image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data : data })
+                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data: data, donationId: dontaionId })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -254,7 +255,7 @@ const BloodDonarDetails = () => {
                                              onChangeText={text => handleInputChange('pickupAddress', text)}
                                              error={!!error.pickupAddress && true}
                                         />
-                                         <CustomTextInput
+                                        <CustomTextInput
                                              label="Quantity"
                                              placeholder="Enter Quantity"
                                              value={state.quantity}

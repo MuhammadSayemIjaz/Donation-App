@@ -1,16 +1,17 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView, Text, TouchableOpacity, Image } from 'react-native';
-import { TextInput, Searchbar, ActivityIndicator } from 'react-native-paper';
+import { Searchbar, ActivityIndicator } from 'react-native-paper';
 import { Color } from '../../GlobalStyles';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import Toast from "react-native-toast-message";
 import { firestoreDB } from '../config/firebase';
-import { collection, doc, getDocs, query, where } from "firebase/firestore/lite";
-import { Entypo } from '@expo/vector-icons';
+import { collection, getDocs, query, where } from "firebase/firestore/lite";
+import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { isEmpty } from 'lodash';
+import { getFormatedDate, getFormatedTime } from '../utils/functions';
 
 const DonationsSearchList = () => {
      const navigation = useNavigation();
@@ -29,17 +30,17 @@ const DonationsSearchList = () => {
      }
      const collectionName = "Donations";
      const collectionRef = collection(firestoreDB, collectionName);
-     const querry = role?.toLowerCase() == 'donor' ? 
-                    query(collectionRef, where("uid", "==", activeUser.uid)) 
-                    : 
-                    role.toLowerCase() == 'receiver' ? 
-                    query(collectionRef, where("status", "==", "APPROVED"))  :
-                    collectionRef;
+     const querry = role?.toLowerCase() == 'donor' ?
+          query(collectionRef, where("uid", "==", activeUser.uid))
+          :
+          role?.toLowerCase() == 'receiver' ?
+               query(collectionRef, where("status", "==", "APPROVED")) :
+               collectionRef;
      const readDocs = async () => {
           setIsLoading(true)
           let donations = [];
           let commercailAmbulances = []
-          
+
           const querySnapshot = await getDocs(querry);
           querySnapshot.forEach((doc) => {
                donations.push(doc.data());
@@ -70,6 +71,12 @@ const DonationsSearchList = () => {
      return (
           <SafeAreaView style={styles.container}>
                <StatusBar backgroundColor='transparent' translucent={true} style='light' />
+               <View style={styles.headerContainer}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                         <Ionicons name="arrow-back" size={26} color={Color.white} />
+                    </TouchableOpacity>
+                    <Text style={styles.heading1}>Donations List</Text>
+               </View>
                <View style={styles.searchtext}>
                     <Searchbar
                          placeholder="Search Here..."
@@ -100,7 +107,7 @@ const DonationsSearchList = () => {
                                              <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
                                                   <View style={[styles.card,
                                                   donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
-                                                  donation?.status === 'APPROVED' && { backgroundColor: 'green' } ||
+                                                  donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
                                                   donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
                                                   donation?.status === 'COMPLETED' && { backgroundColor: 'blue' }
                                                   ]} key={donation.uid}>
@@ -109,15 +116,30 @@ const DonationsSearchList = () => {
                                                                  <Image style={styles.logoimage} resizeMode="contain" source={{ uri: donation?.donorImage }} />
                                                             </View>
                                                        </View> */}
-                                                       <View style={styles.cardTextContainer}>
-                                                            <Text style={styles.cardText}>{donation?.title}</Text>
-                                                            <Text style={styles.cardSubHeading}>{donation?.desc}</Text>
-                                                            {/* <Text style={styles.cardSubHeading}>{donation?.type?.toUpperCase()}</Text> */}
+                                                       <View style={styles.cardHeader}>
+                                                            <Text style={styles.cardHeaderText}>Posted On : {donation?.dateCreated && getFormatedDate(donation?.dateCreated)} </Text>
+                                                            <Text style={styles.cardHeaderText}>{donation?.dateCreated && getFormatedTime(donation?.dateCreated)} </Text>
                                                        </View>
-                                                       <View style={styles.iconContainer}>
-                                                            <Text style={styles.icon}>{donation?.data}</Text>
-                                                            {/* <Entypo name="chevron-right" size={28} color={Color.primary} /> */}
+                                                       <View style={styles.cardMainContainer}>
+                                                            <View style={styles.cardTextContainer}>
+                                                                 <Text style={styles.cardText}>{donation?.title}</Text>
+                                                                 <Text style={styles.cardSubHeading}>{donation?.desc}</Text>
+                                                                 {/* <Text style={styles.cardSubHeading}>{donation?.type?.toUpperCase()}</Text> */}
+                                                            </View>
+                                                            <View style={styles.iconContainer}>
+                                                                 <Text style={styles.icon}>{donation?.data}</Text>
+                                                                 {/* <Entypo name="chevron-right" size={28} color={Color.primary} /> */}
 
+                                                            </View>
+                                                       </View>
+                                                       <View style={styles.cardFooterContainer}>
+                                                            <Text style={styles.type}>{donation?.type}</Text>
+                                                            <Text style={[styles.status,
+                                                            donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
+                                                            donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
+                                                            donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
+                                                            donation?.status === 'COMPLETED' && { backgroundColor: 'white' }
+                                                            ]}>{donation?.status}</Text>
                                                        </View>
                                                   </View>
                                              </TouchableOpacity>
@@ -135,27 +157,72 @@ const styles = StyleSheet.create({
           backgroundColor: Color.primary,
      },
      searchtext: {
-          paddingHorizontal: '7%',
+          paddingHorizontal: '5%',
           alignItems: 'center',
           justifyContent: 'center',
-          marginTop: '20%'
      },
      cardConatiner: {
-          marginTop: '5%',
+          // marginTop: '5%',
           marginBottom: '20%',
           height: '100%'
+     },
+     cardHeaderText: {
+          color: Color.textPrimary,
+          fontSize: 15,
      },
      card: {
           // borderColor: Color.borderColor,
           backgroundColor: Color.secondary,
-          borderRadius: 20,
+          borderRadius: 10,
           width: '100%',
+          // minHeight: 94,
+          // maxHeight: 130,
+          marginBottom: '5%'
+     },
+     cardHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          paddingHorizontal: '3%',
+          paddingVertical: '2%',
+          borderRadius: 10,
+
+
+     },
+     cardMainContainer: {
           flexDirection: 'row',
           alignItems: 'center',
-          minHeight: 94,
-          maxHeight: 130,
-          padding: '7%',
-          marginBottom: '5%'
+          marginTop: '2%',
+          paddingHorizontal: '5%'
+     },
+     cardFooterContainer: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: '5%',
+          paddingBottom: '5%',
+          borderRadius: 10,
+     },
+     type: {
+          fontSize: 18,
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          paddingHorizontal: '5%',
+          paddingVertical: '2%',
+          borderRadius: 10,
+          backgroundColor: Color.primary,
+          color: Color.white
+     },
+     status: {
+          fontSize: 18,
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          paddingHorizontal: '5%',
+          paddingVertical: '2%',
+          borderRadius: 10,
      },
      iconContainer: {
           width: '20%',
@@ -184,7 +251,7 @@ const styles = StyleSheet.create({
           borderWidth: 2,
           borderColor: 'white',
           borderRadius: 25,
-          padding: '7%',
+          padding: '5%',
           backgroundColor: Color.white
      },
      heading: {
@@ -236,7 +303,23 @@ const styles = StyleSheet.create({
      emptyImage: {
           width: '100%',
           height: 150,
-     }
+     },
+     headerContainer: {
+          marginTop: '10%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: '5%',
+          paddingBottom: '5%',
+     },
+     heading1: {
+          fontSize: 25,
+          color: Color.white,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          fontWeight: '600',
+          letterSpacing: 1
+     },
 });
 
 export default DonationsSearchList;
