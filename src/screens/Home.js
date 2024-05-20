@@ -8,14 +8,13 @@ import { Entypo } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { firestoreDB } from '../config/firebase';
-import { collection, getDocs, limit, query } from "firebase/firestore/lite";
+import { collection, getDocs, limit, query, where } from "firebase/firestore/lite";
 import { ActivityIndicator } from 'react-native-paper';
 import { isEmpty, startCase } from 'lodash';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/database';
 import { Fontisto } from '@expo/vector-icons';
-import { where } from 'firebase/firestore';
 import { getFormatedDate, getFormatedTime } from '../utils/functions';
 
 
@@ -24,6 +23,7 @@ const Home = ({ navigation }) => {
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
+     console.log("role", role);
      //     const getDriverLocation = () => {
      //         const driverRef = DBRef(db, `drivers/${activeUser?.uid}`);
      //         onValue(driverRef, (snapshot) => {
@@ -39,13 +39,13 @@ const Home = ({ navigation }) => {
      const collectionName = "Donations";
      const collectionRef = collection(firestoreDB, collectionName);
      const ambuQuerry = role?.toLowerCase() == 'donor' ?
-          query(collectionRef, where("uid", "==", activeUser.uid), limit(3))
+          query(collectionRef, where("uid", "==", activeUser?.uid), limit(3))
           :
           role?.toLowerCase() == 'receiver' ?
-               query(collectionRef, where("status", "==", "APPROVED"), limit(3)) :
+               query(collectionRef, where("receivedById", "==", activeUser?.uid), limit(3)) :
                query(collectionRef, limit(3));
 
-     console.log("userData", userData);
+     console.log("userData", role);
      //     const getPreviousRides = () => {
      //         setIsLoading(true)
      //         const ridesRef = ref(db, `bookings/${activeUser?.uid}`, limit(3));
@@ -122,7 +122,7 @@ const Home = ({ navigation }) => {
                     <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
                     {/* </TouchableOpacity> */}
                </View>
-               <View style={styles.card2}>
+             { role !== 'receiver' && <View style={styles.card2}>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('MoneyDonation')}>
                          <View style={styles.subcard}>
                               <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
@@ -148,11 +148,39 @@ const Home = ({ navigation }) => {
                               {/* <Text style={styles.cardtext}>Account Settings</Text> */}
                          </View>
                     </TouchableOpacity>
-               </View>
+               </View>}
+             { role === 'receiver' && <View style={styles.card2}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'charity'})}>
+                         <View style={styles.subcard}>
+                              <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
+                              {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
+                         </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'food'})}>
+                         <View style={styles.subcard}>
+                              <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
+                              {/* <Entypo name="location"  /> */}
+                              {/* <Text style={styles.cardtext}>Current Location</Text> */}
+                         </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'blood'})}>
+                         <View style={styles.subcard}>
+                              <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
+                              {/* <Text style={styles.cardtext}>Notifications</Text> */}
+                         </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'cloths'})}>
+                         <View style={styles.subcard}>
+                              <Ionicons name="shirt" size={36} color={Color.textSecondary} />
+                              {/* <Text style={styles.cardtext}>Account Settings</Text> */}
+                         </View>
+                    </TouchableOpacity>
+               </View>}
+
                <View style={styles.header}>
                     <View style={styles.mainTextContainer}>
                          <Text style={styles.text}>Previous Donations</Text>
-                         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DriverAccountDetails')}>
+                         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Categories')}>
                               <Text style={styles.text}>See All</Text>
                          </TouchableOpacity>
 
@@ -175,7 +203,7 @@ const Home = ({ navigation }) => {
                                                        donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
                                                        donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
                                                        donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
-                                                       donation?.status === 'COMPLETED' && { backgroundColor: '#00BFFE' }
+                                                       donation?.status === 'RECEIVED' && { backgroundColor: '#00BFFE' }
                                                        ]} key={donation.uid}>
                                                             {/* <View style={styles.iconContainer}>
                                                             <View style={styles.logoimage}>
@@ -204,7 +232,7 @@ const Home = ({ navigation }) => {
                                                                  donation?.status === 'PENDING' && { backgroundColor: 'white' } ||
                                                                  donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
                                                                  donation?.status === 'REJECTED' && { backgroundColor: 'white' } ||
-                                                                 donation?.status === 'COMPLETED' && { backgroundColor: 'white' }
+                                                                 donation?.status === 'RECEIVED' && { backgroundColor: 'white' }
                                                                  ]}>{donation?.status}</Text>
                                                             </View>
                                                        </View>

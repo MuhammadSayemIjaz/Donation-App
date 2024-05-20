@@ -13,7 +13,8 @@ import { AuthContext } from '../context/AuthContext';
 import { isEmpty } from 'lodash';
 import { getFormatedDate, getFormatedTime } from '../utils/functions';
 
-const DonationsSearchList = () => {
+const ReceiverSearchList = ({route}) => {
+     console.log("type", route.params.type);
      const navigation = useNavigation();
      const { activeUser, role } = useContext(AuthContext);
      const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +31,10 @@ const DonationsSearchList = () => {
      }
      const collectionName = "Donations";
      const collectionRef = collection(firestoreDB, collectionName);
-     const querry = role?.toLowerCase() == 'donor' ?
-          query(collectionRef, where("uid", "==", activeUser.uid))
-          :
-          role?.toLowerCase() == 'receiver' ?
-               query(collectionRef, where("status", "==", "APPROVED")) :
-               collectionRef;
+     const querry = query(collectionRef, where("status", "==", "APPROVED"), where("type", "==", route.params.type)) 
      const readDocs = async () => {
           setIsLoading(true)
           let donations = [];
-          let commercailAmbulances = []
 
           const querySnapshot = await getDocs(querry);
           querySnapshot.forEach((doc) => {
@@ -135,9 +130,9 @@ const DonationsSearchList = () => {
                                                        <View style={styles.cardFooterContainer}>
                                                             <Text style={styles.type}>{donation?.type}</Text>
                                                             <Text style={[styles.status,
-                                                            donation?.status === 'PENDING' && { backgroundColor: 'white' } ||
+                                                            donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
                                                             donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
-                                                            donation?.status === 'REJECTED' && { backgroundColor: 'white' } ||
+                                                            donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
                                                             donation?.status === 'RECEIVED' && { backgroundColor: 'white' }
                                                             ]}>{donation?.status}</Text>
                                                        </View>
@@ -163,8 +158,7 @@ const styles = StyleSheet.create({
      },
      cardConatiner: {
           // marginTop: '5%',
-          // marginBottom: '60%',
-          paddingBottom: 150,
+          marginBottom: '20%',
           height: '100%'
      },
      cardHeaderText: {
@@ -203,7 +197,6 @@ const styles = StyleSheet.create({
           alignItems: 'center',
           paddingHorizontal: '5%',
           paddingBottom: '5%',
-          paddingTop: '3%',
           borderRadius: 10,
      },
      type: {
@@ -324,4 +317,4 @@ const styles = StyleSheet.create({
      },
 });
 
-export default DonationsSearchList;
+export default ReceiverSearchList;

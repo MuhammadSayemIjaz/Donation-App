@@ -48,6 +48,9 @@ const Login = () => {
       const data = querySnapshot.data();
       setRole(data.role)
       setUserData(data);
+      handleToast("success", "Login User", "User Login Successfully")
+      setIsLoading(false)
+      navigation.navigate('DrawerNavigation')
     }
   };
 
@@ -74,12 +77,9 @@ const Login = () => {
       signInWithEmailAndPassword(auth, email.toLowerCase(), password)
         .then((userCredential) => {
           const user = userCredential.user;
-          handleToast("success", "Login User", "User Login Successfully")
           // setRole("Receiver")
           setActiveUser(user)
           readDocs(userCredential.user.uid)
-          setIsLoading(false)
-          navigation.navigate('TABS')
         })
         .catch((error) => {
           const errorCode = error.code;

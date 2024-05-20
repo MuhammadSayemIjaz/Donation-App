@@ -18,11 +18,11 @@ import { Fontisto } from '@expo/vector-icons';
 
 
 const Categories = ({ navigation }) => {
-     const { activeUser } = useContext(AuthContext)
+     const { activeUser, role } = useContext(AuthContext)
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
      const [state, setState] = useState({});
-     console.log("activeUser", activeUser);
+     console.log("role", role);
      //     const getDriverLocation = () => {
      //         const driverRef = DBRef(db, `drivers/${activeUser?.uid}`);
      //         onValue(driverRef, (snapshot) => {
@@ -88,8 +88,7 @@ const Categories = ({ navigation }) => {
                          <Text style={styles.heading}>Categories</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
-                         <View style={styles.content}>
-
+                        { role !== 'receiver' && <View style={styles.content}>
                               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('BloodDonation')}>
                                    <View style={styles.cardContent} >
                                         <Fontisto name="blood-drop" size={44} color={Color.primary} />
@@ -126,7 +125,45 @@ const Categories = ({ navigation }) => {
                                         <Text style={styles.cardText}>Others</Text>
                                    </View>
                               </TouchableOpacity>
-                         </View>
+                         </View>}
+                        { role == 'receiver' && <View style={styles.content}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'blood'})}>
+                                   <View style={styles.cardContent} >
+                                        <Fontisto name="blood-drop" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Blood Donation</Text>
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'food'})}>
+                                   <View style={styles.cardContent}>
+                                        <Ionicons name="fast-food-sharp" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Food Donation</Text>
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'cloths'})}>
+                                   <View style={styles.cardContent}>
+                                        <Ionicons name="shirt" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Cloth Donation</Text>
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'medicine'})}>
+                                   <View style={styles.cardContent}>
+                                        <MaterialCommunityIcons name="pill" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Medicine Donation</Text>
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'charity'})}>
+                                   <View style={styles.cardContent}>
+                                        <FontAwesome5 name="money-bill-wave" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Money Donation</Text>
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'others'})}>
+                                   <View style={styles.cardContent} >
+                                        <FontAwesome5 name="hand-holding-heart" size={44} color={Color.primary} />
+                                        <Text style={styles.cardText}>Others</Text>
+                                   </View>
+                              </TouchableOpacity>
+                         </View>}
                     </ScrollView>
                </View>
           </SafeAreaView >

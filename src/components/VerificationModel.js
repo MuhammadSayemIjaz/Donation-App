@@ -16,6 +16,7 @@ import { AuthContext } from '../context/AuthContext';
 const VerificationModel = ({ toggleModal, isModalVisible, donationId, donationStatus }) => {
      const navigation = useNavigation();
      const [data, setData] = React.useState({});
+     const [isLoading, setIsLoading] = React.useState(false);
      const { activeUser } = React.useContext(AuthContext);
      console.log("donationStatus", donationStatus);
      const handleToast = (type, text1, text2) => {
@@ -27,42 +28,47 @@ const VerificationModel = ({ toggleModal, isModalVisible, donationId, donationSt
           });
      }
      const handleVerify = async () => {
-          if (donationStatus === 'APPROVED') {
-               setData({
+          setIsLoading(true);
+          const updateDonationStatus = async (donationStatus) => {
+               const data = {
                     status: donationStatus,
-                    approvedDate: new Date()
-               })
-          } else if (donationStatus === 'REJECTED') {
-               setData({
-                    status: donationStatus,
-                    rejectedDate: new Date(),
-                    rejectedBy: {
-                         name: activeUser?.displayName,
-                         email: activeUser?.email,
-                         uid: activeUser?.uid
-                    }
-               })
-          } else if (donationStatus === 'COMPLETED') {
-               setData({
-                    status: donationStatus,
-                    receivedDate: new Date(),
-                    receivedBy: {
-                         name: activeUser?.displayName,
-                         email: activeUser?.email,
-                         uid: activeUser?.uid
-                    }
-               })
-          }
-          try {
-               const donationRef = doc(collection(firestoreDB1, 'Donations'), donationId);
-               await updateDoc(donationRef, data);
-               handleToast('success', `${donationStatus === 'COMPLETED' ? 'Donation Received' : 'Donation Verified'}`, 'Donation Requeset Fullfilled Successfully');
-               navigation.navigate('TABS');
-               toggleModal();
-          }
-          catch (error) {
-               console.log(error);
-               handleToast('error', 'Error', 'Something went wrong');
+               };
+
+               if (donationStatus === 'APPROVED') {
+                    data.approvedDate = new Date();
+                    data.approvedByName = activeUser?.displayName;
+                    data.approvedByEmail = activeUser?.email;
+                    data.approvedById = activeUser?.uid;
+
+               } else if (donationStatus === 'REJECTED') {
+                    data.rejectedDate = new Date();
+                    data.rejectedByName = activeUser?.displayName;
+                    data.rejectedByEmail = activeUser?.email;
+                    data.rejectedById = activeUser?.uid;
+
+               } else if (donationStatus === 'RECEIVED') {
+                    data.receivedDate = new Date();
+                    data.receivedByName = activeUser?.displayName;
+                    data.receivedByEmail = activeUser?.email;
+                    data.receivedById = activeUser?.uid;
+               }
+
+               try {
+                    const donationRef = doc(collection(firestoreDB1, 'Donations'), donationId);
+                    await updateDoc(donationRef, data);
+                    const successMessage = donationStatus === 'RECEIVED' ? 'Donation Received' : 'Donation Verified';
+                    handleToast('success', successMessage, 'Donation Requeset Fullfilled Successfully');
+                    setIsLoading(false);
+                    navigation.navigate('DrawerNavigation');
+                    toggleModal();
+               } catch (error) {
+                    console.log(error);
+                    handleToast('error', 'Error', 'Something went wrong');
+               }
+          };
+
+          if (donationStatus === 'APPROVED' || donationStatus === 'REJECTED' || donationStatus === 'RECEIVED') {
+               updateDonationStatus(donationStatus);
           }
      }
 
@@ -71,7 +77,7 @@ const VerificationModel = ({ toggleModal, isModalVisible, donationId, donationSt
                <Modal isVisible={isModalVisible} animationIn={'fadeInLeft'} swipeDirection={'right'} style={{ backgroundColor: 'white', borderRadius: 10, paddingHorizontal: '5%', marginTop: 'auto', marginBottom: 'auto', maxHeight: 250 }}>
                     <View style={styles.modal}>
                          <TouchableOpacity activeOpacity={0.5} onPress={() => toggleModal()} style={styles.iconContanier}>
-                              <Text style={[styles.label]}>{donationStatus == 'COMPLETED' ? 'Receive' : 'Verify'} Donation ?</Text>
+                              <Text style={[styles.label]}>{donationStatus == 'RECEIVED' ? 'Receive' : 'Verify'} Donation ?</Text>
                               <Ionicons name="close" size={28} color={Color.backgroundColorPrimary} />
                          </TouchableOpacity>
                          <View style={styles.btnConatiner}>
@@ -80,11 +86,12 @@ const VerificationModel = ({ toggleModal, isModalVisible, donationId, donationSt
                                         leftIcon={
                                              <FontAwesome6 name="file-circle-check" size={24} color={Color.white} />
                                         }
-                                        title={donationStatus === 'COMPLETED' ? 'Receive Donation' : "Verify Donation"}
+                                        title={donationStatus === 'RECEIVED' ? 'Receive Donation' : "Verify Donation"}
                                         style={styles.callBtn}
                                         titleStyle={{
                                              color: Color.white
                                         }}
+                                        isLoading={isLoading}
                                         onPress={handleVerify}
                                    />
                               </TouchableOpacity>

@@ -208,7 +208,7 @@ const UserSignup = () => {
                   setIsLoading(false)
                   setActiveUser(userData)
                   setState(initialState)
-                  navigation.navigate('TABS')
+                  navigation.navigate('Login')
                 })
                 .catch((error) => {
                   const errorCode = error.code;

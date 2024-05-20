@@ -13,6 +13,11 @@ import BloodDonation from '../screens/BloodDonation';
 import BloodDonarDetails from '../screens/BloodDonarDetails';
 import DonationsSearchList from '../screens/DonationsSearchList';
 import DonationDetails from '../screens/DonationDetails';
+import ReceiverSearchList from '../screens/ReceiverSearchList';
+import DrawerNavigation from './DrawerNavigation';
+import ForgotPassword from '../screens/auth/ForgotPassword';
+import CheckEmail from '../screens/auth/CheckEmail';
+import UpdatePassword from '../screens/auth/UpdatePassword';
 const Stack = createStackNavigator();
 
 const AppNavigation = () => {
@@ -21,6 +26,7 @@ const AppNavigation = () => {
                <Stack.Navigator>
                     <Stack.Screen name="StarterScreen" component={StarterScreen}  options={{headerShown: false}}/>
                     <Stack.Screen name="StarterScreen1" component={StarterScreen1}  options={{headerShown: false}}/>
+                    <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} options={{ headerShown: false }} />
                     <Stack.Screen name="Login" component={Login}  options={{headerShown: false}}/>
                     <Stack.Screen name="Signup" component={Signup}  options={{headerShown: false}}/>
                     <Stack.Screen name="TABS" component={TABS}  options={{headerShown: false}}/>
@@ -32,6 +38,10 @@ const AppNavigation = () => {
                     <Stack.Screen name="BloodDonarDetails" component={BloodDonarDetails}  options={{headerShown: false}}/>
                     <Stack.Screen name="DonationsSearchList" component={DonationsSearchList}  options={{headerShown: false}}/>
                     <Stack.Screen name="DonationDetails" component={DonationDetails}  options={{headerShown: false}}/>
+                    <Stack.Screen name="ReceiverSearchList" component={ReceiverSearchList}  options={{headerShown: false}}/>
+                    <Stack.Screen name="ForgotPassword" component={ForgotPassword}  options={{headerShown: false}}/>
+                    <Stack.Screen name="CheckEmail" component={CheckEmail}  options={{headerShown: false}}/>
+                    <Stack.Screen name="UpdatePassword" component={UpdatePassword}  options={{headerShown: false}}/>
                     {/* <Stack.Screen name="Home" component={Home} options={{headerShown: false}} /> */}
                     {/* <Stack.Screen name="About" component={About} 
                     options={{

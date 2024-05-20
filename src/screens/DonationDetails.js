@@ -137,7 +137,7 @@ const DonationDetails = ({ navigation, route }) => {
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: '5%' }}>
                          <Text style={styles.baner}>Type : {item?.type?.toUpperCase()}</Text>
                          <Text style={[styles.baner,
-                         { backgroundColor: item?.status === 'REJECTED' ? 'red' : item?.status === 'APPROVED' ? 'green' : item?.status === 'COMPLETED' ? 'blue' : 'orange' }
+                         { backgroundColor: item?.status === 'REJECTED' ? 'red' : item?.status === 'APPROVED' ? 'green' : item?.status === 'RECEIVED' ? 'blue' : 'orange' }
                          ]}>{item?.status?.toUpperCase()}</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
@@ -215,7 +215,7 @@ const DonationDetails = ({ navigation, route }) => {
                                         titleStyle={{
                                              color: Color.primary
                                         }}
-                                        onPress={() => handleToggle('COMPLETED')}
+                                        onPress={() => handleToggle('RECEIVED')}
                                    />
                               }
                               <ImageView
