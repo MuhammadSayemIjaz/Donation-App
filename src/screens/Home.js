@@ -117,7 +117,9 @@ const Home = ({ navigation }) => {
      console.log(donation.length);
 
      useEffect(() => {
-          readDocs()
+          if (activeUser){
+               readDocs()
+          }
      }, [])
      return (
           <SafeAreaView style={styles.container}>
