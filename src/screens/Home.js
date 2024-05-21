@@ -17,12 +17,16 @@ import { ref as DBRef, onValue, set, push, getDatabase, ref } from 'firebase/dat
 import { Fontisto } from '@expo/vector-icons';
 import { getFormatedDate, getFormatedTime } from '../utils/functions';
 
-
 const Home = ({ navigation }) => {
      const { activeUser, userData, role } = useContext(AuthContext);
      const [isLoading, setIsLoading] = useState(false);
      const [donation, setDonation] = useState([]);
+     const [totalDonation, setTotalDonation] = useState(0);
+     const [approvedDonation, setApprovedDonation] = useState(0);
+     const [pendingDonation, setPendingDonation] = useState(0);
+     const [receivedDonation, setReceivedDonation] = useState(0);
      const [state, setState] = useState({});
+     const [donations1, setDonations] = useState();
      console.log("role", role);
      //     const getDriverLocation = () => {
      //         const driverRef = DBRef(db, `drivers/${activeUser?.uid}`);
@@ -43,9 +47,10 @@ const Home = ({ navigation }) => {
           :
           role?.toLowerCase() == 'receiver' ?
                query(collectionRef, where("receivedById", "==", activeUser?.uid), limit(3)) :
-               query(collectionRef, limit(3));
+               query(collectionRef);
 
      console.log("userData", role);
+
      //     const getPreviousRides = () => {
      //         setIsLoading(true)
      //         const ridesRef = ref(db, `bookings/${activeUser?.uid}`, limit(3));
@@ -69,6 +74,28 @@ const Home = ({ navigation }) => {
      //     useEffect(() => {
      //         getPreviousRides()
      //     }, []);
+     const calculateTotals = (donations) => {
+          const totals = {
+               total: 0,
+               pending: 0,
+               approved: 0,
+               received: 0,
+          };
+
+          donations.forEach((donation) => {
+               if (donation.status === 'PENDING') {
+                    totals.pending += 1;
+               } else if (donation.status === 'APPROVED') {
+                    totals.approved += 1;
+               } else if (donation.status === 'RECEIVED') {
+                    totals.received += 1;
+               }
+          });
+
+          setDonations(totals)
+          return totals;
+     };
+
 
      const readDocs = async () => {
           setIsLoading(true)
@@ -80,7 +107,14 @@ const Home = ({ navigation }) => {
           // console.log(donations);
           setDonation([...donations]);
           setIsLoading(false)
+          setTotalDonation(donations.length);
+          if (role === 'admin') {
+               const response = calculateTotals(donations);
+               
+               console.log("donations response", donations1);
+          }
      };
+     console.log(donation.length);
 
      useEffect(() => {
           readDocs()
@@ -103,7 +137,7 @@ const Home = ({ navigation }) => {
                </View>
                <View style={{ paddingHorizontal: '7%', marginTop: '4%' }}>
                     <Text style={{ fontSize: 25, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Hello, {activeUser?.displayName}</Text>
-                    <Text style={{ marginTop: '3%', letterSpacing: 1, color: Color.textSecondary, fontSize: 17 }}>What do you wanna donate today? </Text>
+                    {role !== 'admin' && <Text style={{ marginTop: '3%', letterSpacing: 1, color: Color.textSecondary, fontSize: 17 }}>What do you wanna donate today? </Text>}
                </View>
                <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DonationsSearchList')}>
                     <View style={styles.searchContainer}>
@@ -116,133 +150,179 @@ const Home = ({ navigation }) => {
                          </View>
                     </View>
                </TouchableOpacity>
-               <View style={{ paddingHorizontal: '5%', paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Categories</Text>
-                    {/* <TouchableOpacity activeOpacity={0.5} > */}
-                    <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
-                    {/* </TouchableOpacity> */}
-               </View>
-               {role !== 'receiver' && role !== 'admin' && <View style={styles.card2}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('MoneyDonation')}>
-                         <View style={styles.subcard}>
-                              <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
+               {
+                    role !== 'admin' && <>
+                         <View style={{ paddingHorizontal: '5%', paddingTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+                              <Text style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>Categories</Text>
+                              {/* <TouchableOpacity activeOpacity={0.5} > */}
+                              <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
+                              {/* </TouchableOpacity> */}
                          </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('FoodDonation')}>
-                         <View style={styles.subcard}>
-                              <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
-                              {/* <Entypo name="location"  /> */}
-                              {/* <Text style={styles.cardtext}>Current Location</Text> */}
-                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BloodDonation')}>
-                         <View style={styles.subcard}>
-                              <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>Notifications</Text> */}
-                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ClothDonation')}>
-                         <View style={styles.subcard}>
-                              <Ionicons name="shirt" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>Account Settings</Text> */}
-                         </View>
-                    </TouchableOpacity>
-               </View>}
-               {role === 'receiver' && <View style={styles.card2}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'charity' })}>
-                         <View style={styles.subcard}>
-                              <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
-                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'food' })}>
-                         <View style={styles.subcard}>
-                              <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
-                              {/* <Entypo name="location"  /> */}
-                              {/* <Text style={styles.cardtext}>Current Location</Text> */}
-                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'blood' })}>
-                         <View style={styles.subcard}>
-                              <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>Notifications</Text> */}
-                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'cloths' })}>
-                         <View style={styles.subcard}>
-                              <Ionicons name="shirt" size={36} color={Color.textSecondary} />
-                              {/* <Text style={styles.cardtext}>Account Settings</Text> */}
-                         </View>
-                    </TouchableOpacity>
-               </View>}
-
-               <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={styles.header}>
-                         <View style={styles.mainTextContainer}>
-                              <Text style={styles.text}>Previous Donations</Text>
-                              <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationsSearchList')}>
-                                   <Text style={styles.text}>See All</Text>
+                         {role !== 'receiver' && <View style={styles.card2}>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('MoneyDonation')}>
+                                   <View style={styles.subcard}>
+                                        <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
+                                   </View>
                               </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('FoodDonation')}>
+                                   <View style={styles.subcard}>
+                                        <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
+                                        {/* <Entypo name="location"  /> */}
+                                        {/* <Text style={styles.cardtext}>Current Location</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BloodDonation')}>
+                                   <View style={styles.subcard}>
+                                        <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>Notifications</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ClothDonation')}>
+                                   <View style={styles.subcard}>
+                                        <Ionicons name="shirt" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>Account Settings</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                         </View>}
+                         {role === 'receiver' && <View style={styles.card2}>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'charity' })}>
+                                   <View style={styles.subcard}>
+                                        <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'food' })}>
+                                   <View style={styles.subcard}>
+                                        <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
+                                        {/* <Entypo name="location"  /> */}
+                                        {/* <Text style={styles.cardtext}>Current Location</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'blood' })}>
+                                   <View style={styles.subcard}>
+                                        <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>Notifications</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'cloths' })}>
+                                   <View style={styles.subcard}>
+                                        <Ionicons name="shirt" size={36} color={Color.textSecondary} />
+                                        {/* <Text style={styles.cardtext}>Account Settings</Text> */}
+                                   </View>
+                              </TouchableOpacity>
+                         </View>}
 
-                         </View>
-                         <View style={styles.bottomContainer}>
-                              {isLoading ?
-                                   (<View style={styles.loadingContainer}>
-                                        <ActivityIndicator animating={true} size="large" color={Color.primary} />
-                                   </View>) :
-                                   (isEmpty(donation) ?
-                                        <View style={styles.imageContainer}>
-                                             <Image style={styles.emptyImage} source={require('../../assets/images/EmptyList.png')} />
-                                             <Text style={styles.heading}>Empty List</Text>
-                                        </View> :
-                                        donation.map((donation, ind) => (
-                                             <View key={ind}>
-                                                  <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
-                                                       <View style={[styles.card,
-                                                       donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
-                                                       donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
-                                                       donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
-                                                       donation?.status === 'RECEIVED' && { backgroundColor: '#00BFFE' }
-                                                       ]} key={donation.uid}>
-                                                            {/* <View style={styles.iconContainer}>
+                         <ScrollView showsVerticalScrollIndicator={false}>
+                              <View style={styles.header}>
+                                   <View style={styles.mainTextContainer}>
+                                        <Text style={styles.text}>Previous Donations</Text>
+                                        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationsSearchList')}>
+                                             <Text style={styles.text}>See All</Text>
+                                        </TouchableOpacity>
+
+                                   </View>
+                                   <View style={styles.bottomContainer}>
+                                        {isLoading ?
+                                             (<View style={styles.loadingContainer}>
+                                                  <ActivityIndicator animating={true} size="large" color={Color.primary} />
+                                             </View>) :
+                                             (isEmpty(donation) ?
+                                                  <View style={styles.imageContainer}>
+                                                       <Image style={styles.emptyImage} source={require('../../assets/images/EmptyList.png')} />
+                                                       <Text style={styles.heading}>Empty List</Text>
+                                                  </View> :
+                                                  donation.map((donation, ind) => (
+                                                       <View key={ind}>
+                                                            <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
+                                                                 <View style={[styles.card,
+                                                                 donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
+                                                                 donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||
+                                                                 donation?.status === 'REJECTED' && { backgroundColor: 'red' } ||
+                                                                 donation?.status === 'RECEIVED' && { backgroundColor: '#00BFFE' }
+                                                                 ]} key={donation.uid}>
+                                                                      {/* <View style={styles.iconContainer}>
                                                             <View style={styles.logoimage}>
                                                                  <Image style={styles.logoimage} resizeMode="contain" source={{ uri: donation?.donorImage }} />
                                                             </View>
                                                        </View> */}
-                                                            <View style={styles.cardHeader}>
-                                                                 <Text style={styles.cardHeaderText}>Posted On : {donation?.dateCreated && getFormatedDate(donation?.dateCreated)} </Text>
-                                                                 <Text style={styles.cardHeaderText}>{donation?.dateCreated && getFormatedTime(donation?.dateCreated)} </Text>
-                                                            </View>
-                                                            <View style={styles.cardMainContainer}>
-                                                                 <View style={styles.cardTextContainer}>
-                                                                      <Text style={styles.cardText}>{donation?.title}</Text>
-                                                                      <Text style={styles.cardSubHeading}>{donation?.desc}</Text>
-                                                                      {/* <Text style={styles.cardSubHeading}>{donation?.type?.toUpperCase()}</Text> */}
-                                                                 </View>
-                                                                 <View style={styles.iconContainer}>
-                                                                      <Text style={styles.icon}>{donation?.data}</Text>
-                                                                      {/* <Entypo name="chevron-right" size={28} color={Color.primary} /> */}
+                                                                      <View style={styles.cardHeader}>
+                                                                           <Text style={styles.cardHeaderText}>Posted On : {donation?.dateCreated && getFormatedDate(donation?.dateCreated)} </Text>
+                                                                           <Text style={styles.cardHeaderText}>{donation?.dateCreated && getFormatedTime(donation?.dateCreated)} </Text>
+                                                                      </View>
+                                                                      <View style={styles.cardMainContainer}>
+                                                                           <View style={styles.cardTextContainer}>
+                                                                                <Text style={styles.cardText}>{donation?.title}</Text>
+                                                                                <Text style={styles.cardSubHeading}>{donation?.desc}</Text>
+                                                                                {/* <Text style={styles.cardSubHeading}>{donation?.type?.toUpperCase()}</Text> */}
+                                                                           </View>
+                                                                           <View style={styles.iconContainer}>
+                                                                                <Text style={styles.icon}>{donation?.data}</Text>
+                                                                                {/* <Entypo name="chevron-right" size={28} color={Color.primary} /> */}
 
+                                                                           </View>
+                                                                      </View>
+                                                                      <View style={styles.cardFooterContainer}>
+                                                                           <Text style={styles.type}>{donation?.type}</Text>
+                                                                           <Text style={[styles.status,
+                                                                           donation?.status === 'PENDING' && { backgroundColor: 'white' } ||
+                                                                           donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
+                                                                           donation?.status === 'REJECTED' && { backgroundColor: 'white' } ||
+                                                                           donation?.status === 'RECEIVED' && { backgroundColor: 'white' }
+                                                                           ]}>{donation?.status}</Text>
+                                                                      </View>
                                                                  </View>
-                                                            </View>
-                                                            <View style={styles.cardFooterContainer}>
-                                                                 <Text style={styles.type}>{donation?.type}</Text>
-                                                                 <Text style={[styles.status,
-                                                                 donation?.status === 'PENDING' && { backgroundColor: 'white' } ||
-                                                                 donation?.status === 'APPROVED' && { backgroundColor: 'white' } ||
-                                                                 donation?.status === 'REJECTED' && { backgroundColor: 'white' } ||
-                                                                 donation?.status === 'RECEIVED' && { backgroundColor: 'white' }
-                                                                 ]}>{donation?.status}</Text>
-                                                            </View>
+                                                            </TouchableOpacity>
                                                        </View>
-                                                  </TouchableOpacity>
-                                             </View>
-                                        ))
-                                   )}
-                         </View>
-                    </View>
-               </ScrollView>
+                                                  ))
+                                             )}
+                                   </View>
+                              </View>
+                         </ScrollView>
+                    </>
+               }
+               {
+                    role === 'admin' && <>
+                         <ScrollView showsVerticalScrollIndicator={false}>
+
+                              <View style={styles.insightsContainer}>
+                                   <TouchableOpacity style={[styles.insightsCard, { backgroundColor: Color.secondary, borderWidth: 2, borderColor: Color.primary }]} onPress={() => navigation.navigate('DonationsSearchList')}>
+                                        <View style={[styles.insightCircle, { backgroundColor: Color.primary }]}>
+                                             <Text style={[styles.insightCircleText, { color: Color.white }]}>{totalDonation}</Text>
+                                        </View>
+                                        <View style={styles.insightsTextontainer}>
+                                             <Text style={[styles.insightHeading, { color: Color.primary, letterSpacing: 1 }]}>Total Donations</Text>
+                                        </View>
+                                   </TouchableOpacity>
+                                   <TouchableOpacity style={[styles.insightsCard, { backgroundColor: "#CBEACD", borderWidth: 2, borderColor: "#009C1A" }]} onPress={() => navigation.navigate('AdminDonationsList', { type: 'APPROVED' })}>
+                                        <View style={[styles.insightCircle, { backgroundColor: "#009C1A" }]}>
+                                             <Text style={[styles.insightCircleText, { color: Color.white }]}>{donations1?.approved}</Text>
+                                        </View>
+                                        <View style={styles.insightsTextontainer}>
+                                             <Text style={[styles.insightHeading, { color: "#009C1A", letterSpacing: 1 }]}> Approved Donations</Text>
+                                        </View>
+                                   </TouchableOpacity>
+                                   <TouchableOpacity style={[styles.insightsCard, { backgroundColor: "#F5DDC5", borderWidth: 2, borderColor: "#F57A00" }]} onPress={() => navigation.navigate('AdminDonationsList', { type: 'PENDING' })}>
+                                        <View style={[styles.insightCircle, { backgroundColor: "#F57A00" }]}>
+                                             <Text style={[styles.insightCircleText, { color: Color.white }]}>{donations1?.pending}</Text>
+                                        </View>
+                                        <View style={styles.insightsTextontainer}>
+                                             <Text style={[styles.insightHeading, { color: "#F57A00", letterSpacing: 1 }]}>Pending Donations</Text>
+                                        </View>
+                                   </TouchableOpacity>
+                                   <TouchableOpacity style={[styles.insightsCard, { backgroundColor: "#BAC2FF", borderWidth: 2, borderColor: "#00059F" }]} onPress={() => navigation.navigate('AdminDonationsList', { type: 'RECEIVED' })}>
+                                        <View style={[styles.insightCircle, { backgroundColor: "#00059F" }]}>
+                                             <Text style={[styles.insightCircleText, { color: Color.white }]}>{donations1?.received}</Text>
+                                        </View>
+                                        <View style={styles.insightsTextontainer}>
+                                             <Text style={[styles.insightHeading, { color: "#00059F", letterSpacing: 1 }]}>Received Donations</Text>
+                                        </View>
+                                   </TouchableOpacity>
+                              </View>
+                         </ScrollView>
+                    </>
+               }
+
           </SafeAreaView >
      );
 };
@@ -367,7 +447,7 @@ const styles = StyleSheet.create({
           borderWidth: 2,
           borderColor: 'white',
           borderRadius: 25,
-          height: '100%',
+          height: 500,
           padding: '7%',
           backgroundColor: Color.textSecondary
      },
@@ -501,6 +581,46 @@ const styles = StyleSheet.create({
           height: 'auto',
           aspectRatio: 2 / 1
      },
+     insightsContainer: {
+          height: '100%',
+          backgroundColor: Color.white,
+          marginTop: '7%',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          paddingVertical: '7%',
+          paddingHorizontal: '5%',
+          gap: 15
+     },
+     insightsCard: {
+          height: 110,
+          borderRadius: 15,
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: '5%',
+          gap: 20
+     },
+     insightCircle: {
+          borderRadius: 300,
+          // padding: '8%',
+          width: 85,
+          height: 85,
+          justifyContent: 'center',
+          alignItems: 'center'
+     },
+     insightCircleText: {
+          fontSize: 20,
+          color: Color.primary,
+          fontWeight: '800'
+     },
+     insightHeading: {
+          fontSize: 20,
+          color: Color.white,
+          fontWeight: '600',
+     },
+     insightsTextontainer: {
+          width: '100%',
+          flexWrap: 'wrap'
+     }
 });
 
 export default Home;

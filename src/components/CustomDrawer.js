@@ -33,7 +33,8 @@ const CustomDrawer = (props) => {
           });
      }
      const handleSignOut1 = async () => {
-          handleSignOut()
+          handleSignOut();
+          navigation.navigate('StarterScreen');
      }
      return (
           <View style={{ flex: 1, backgroundColor: Color.white }}>

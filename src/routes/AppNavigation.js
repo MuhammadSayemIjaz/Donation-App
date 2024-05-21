@@ -22,6 +22,7 @@ import ClothDonation from '../screens/ClothDonation';
 import FoodDonation from '../screens/FoodDonation';
 import MedicineDonation from '../screens/MedicineDonation';
 import OtherDonations from '../screens/OtherDonations';
+import AdminDonationsList from '../screens/AdminDonationsList';
 const Stack = createStackNavigator();
 
 const AppNavigation = () => {
@@ -50,6 +51,7 @@ const AppNavigation = () => {
                     <Stack.Screen name="FoodDonation" component={FoodDonation} options={{ headerShown: false }} />
                     <Stack.Screen name="MedicineDonation" component={MedicineDonation} options={{ headerShown: false }} />
                     <Stack.Screen name="OtherDonations" component={OtherDonations} options={{ headerShown: false }} />
+                    <Stack.Screen name="AdminDonationsList" component={AdminDonationsList} options={{ headerShown: false }} />
                </Stack.Navigator>
           </NavigationContainer>
      )
