@@ -95,19 +95,19 @@ const Categories = ({ navigation }) => {
                                         <Text style={styles.cardText}>Blood Donation</Text>
                                    </View>
                               </TouchableOpacity>
-                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('FoodDonation')}>
                                    <View style={styles.cardContent}>
                                         <Ionicons name="fast-food-sharp" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Food Donation</Text>
                                    </View>
                               </TouchableOpacity>
-                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ClothDonation')}>
                                    <View style={styles.cardContent}>
                                         <Ionicons name="shirt" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Cloth Donation</Text>
                                    </View>
                               </TouchableOpacity>
-                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('MedicineDonation')}>
                                    <View style={styles.cardContent}>
                                         <MaterialCommunityIcons name="pill" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Medicine Donation</Text>
@@ -119,7 +119,7 @@ const Categories = ({ navigation }) => {
                                         <Text style={styles.cardText}>Money Donation</Text>
                                    </View>
                               </TouchableOpacity>
-                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DonationForm')}>
+                              <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('OtherDonations')}>
                                    <View style={styles.cardContent} >
                                         <FontAwesome5 name="hand-holding-heart" size={44} color={Color.primary} />
                                         <Text style={styles.cardText}>Others</Text>

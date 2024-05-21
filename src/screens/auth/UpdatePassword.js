@@ -72,7 +72,7 @@ const UpdatePassword = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.imageContainer}>
             <View style={styles.image}>
-              <Image style={styles.image} source={require('../../../assets/images/forgotPassword.jpg')} resizeMode='contain' />
+              <Image style={styles.image} source={require('../../../assets/images/forgotPassword.png')} resizeMode='contain' />
             </View>
           </View>
           <Text style={styles.heading}>Create New Password</Text>

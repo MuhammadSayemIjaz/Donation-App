@@ -11,42 +11,38 @@ import CustomeIconButton from '../components/CustomeIconButton';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
-import { doc, setDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore/lite';
+// import { useIsConnected } from 'react-native-offline';
+import { ref as dbRef, set } from 'firebase/database';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite';
 import { ref, getStorage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { firestoreDB } from '../config/firebase';
+import { auth, db, firestoreDB } from '../config/firebase';
 import * as Location from 'expo-location';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
 import { useRoute } from '@react-navigation/native';
 import { generateAutoNumber } from '../utils/functions';
-const BloodDonarDetails = () => {
+const OtherDonations = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
      const route = useRoute();
-     const { data } = route.params;
      const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
      const [isButtonPressed, setIsButtonPressed] = useState(false);
      const [isImageSelected, setIsImageSelected] = useState(false);
+     const [confirmShowPassword, setConfirmShowPassword] = useState(false);
+     const [showPassword, setShowPassword] = useState(false);
      const [location, setLocation] = useState(null);
      const [isLoading, setIsLoading] = useState(false);
      const initialState = {
           title: '',
           desc: '',
-          donorName: '',
-          donorAge: '',
-          quantity: '',
-          pickupAddress: '',
      }
      const [state, setState] = useState(initialState);
      const [error, setError] = useState({
           title: '',
           desc: '',
-          donorName: '',
-          donorAge: '',
-          quantity: '',
-          pickupAddress: ''
      });
      const storage = getStorage();
      const metadata = {
@@ -67,24 +63,12 @@ const BloodDonarDetails = () => {
           if (!isImageSelected) {
                handleToast('error', 'Profile Image', 'Image Is required')
                return;
-          } else if (!state.donorName) {
-               errors.desc = true;
-               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
-          } else if (!state.donorAge) {
-               errors.desc = true;
-               handleToast('error', 'Donor Age', 'Please Enter Donor Age.')
-          } else if (!state.pickupAddress) {
-               errors.desc = true;
-               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
-          } else if (!state.quantity) {
-               errors.desc = true;
-               handleToast('error', 'Quantity', 'Please Enter Quantity.')
           } else if (!state.title) {
                errors.title = true;
                handleToast('error', 'Title', 'Please Enter Title of Donation')
           } else if (!state.desc) {
                errors.desc = true;
-               handleToast('error', 'Description', 'Please Enter Description of Donation.')
+               handleToast('error', 'Description', 'Please Enter Description of Donation')
           } else if (!location) {
                handleToast('error', 'Location', 'Location is required')
           }
@@ -144,7 +128,6 @@ const BloodDonarDetails = () => {
 
      const handleSubmit = async () => {
           setIsLoading(true)
-          console.log("previous data", data, state, location);
           // convert image into blob image 
           const response = await fetch(isImageSelected)
           const blob = await response.blob()
@@ -152,9 +135,10 @@ const BloodDonarDetails = () => {
           const user = activeUser.uid;
           const userData = activeUser;
           const dontaionId = generateAutoNumber(15);
+
           // upload image on firebase storage 
 
-          const storageRef = ref(storage, 'Donor Blood Reports/' + Date.now());
+          const storageRef = ref(storage, 'Other Donation Images/' + Date.now());
           const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
 
           uploadTask.on('state_changed',
@@ -169,7 +153,7 @@ const BloodDonarDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data: data, donationId: dontaionId })
+                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'other', status: 'PENDING', donationId: dontaionId })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -204,7 +188,7 @@ const BloodDonarDetails = () => {
                          <TouchableOpacity onPress={() => navigation.goBack()}>
                               <Ionicons name="arrow-back" size={26} color={Color.textPrimary} />
                          </TouchableOpacity>
-                         <Text style={styles.heading}>Blood Donor Details</Text>
+                         <Text style={styles.heading}>Donation Details</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.header}>
@@ -220,45 +204,13 @@ const BloodDonarDetails = () => {
                                                   :
                                                   <View style={styles.inactiveImageContainer}>
                                                        <Feather name="image" size={54} color={Color.primary} />
-                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Blood Test Report</Text>
+                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Donation Image</Text>
                                                        {/* <FontAwesome name="user-circle-o" size={154}  /> */}
                                                   </View>
                                              }
                                         </TouchableOpacity>
                                    </View>
                                    <View style={styles.inputContainer}>
-                                        <CustomTextInput
-                                             label="Donor Name"
-                                             placeholder="Enter Donor Name"
-                                             value={state.donorName}
-                                             onChangeText={text => handleInputChange('donorName', text)}
-                                             error={!!error.donorName && true}
-                                        />
-                                        <CustomTextInput
-                                             label="Donor Age"
-                                             placeholder="Enter Donor Age"
-                                             value={state.donorAge}
-                                             onChangeText={text => handleInputChange('donorAge', text)}
-                                             error={!!error.donorAge && true}
-                                             keyboardType="phone-pad"
-                                             maxLength={3}
-                                        />
-                                        <CustomTextInput
-                                             label="Pickup Address"
-                                             placeholder="Enter Pickup Address"
-                                             value={state.pickupAddress}
-                                             onChangeText={text => handleInputChange('pickupAddress', text)}
-                                             error={!!error.pickupAddress && true}
-                                        />
-                                        <CustomTextInput
-                                             label="Quantity"
-                                             placeholder="Enter Quantity"
-                                             value={state.quantity}
-                                             onChangeText={text => handleInputChange('quantity', text)}
-                                             error={!!error.quantity && true}
-                                             keyboardType="phone-pad"
-                                             maxLength={3}
-                                        />
                                         <CustomTextInput
                                              label="Title"
                                              placeholder="Enter Donation Title"
@@ -403,4 +355,4 @@ const styles = StyleSheet.create({
      }
 });
 
-export default BloodDonarDetails;
+export default OtherDonations;

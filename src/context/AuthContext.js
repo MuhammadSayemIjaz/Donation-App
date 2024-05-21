@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { signOut } from '@firebase/auth';
 // import { useNavigation } from '@react-navigation/native';
 export const AuthContext = React.createContext();
 
 
-export const AuthProvider = ({ children, navigate }) => {
+export const AuthProvider = ({ children }) => {
   const [coords, setCoords] = useState({});
   const [activeUser, setActiveUser] = useState(null);
   const [role, setRole] = useState(null);
@@ -22,8 +23,18 @@ export const AuthProvider = ({ children, navigate }) => {
     return subscriber;
   }, []);
 
+  const handleSignOut = () => {
+    signOut(auth)
+      .then((res) => {
+        handleToast("success", "Logout", "Logged Out Successfully")
+        setActiveUser({})
+      }).catch((err) => {
+        handleToast("error", "Error Message", err)
+      })
+  };
+
   return (
-    <AuthContext.Provider value={{ coords, setCoords, activeUser, setActiveUser, role, setRole, userData, setUserData }}>
+    <AuthContext.Provider value={{ coords, setCoords, activeUser, setActiveUser, role, setRole, userData, setUserData, handleSignOut }}>
       {children}
     </AuthContext.Provider>
   );

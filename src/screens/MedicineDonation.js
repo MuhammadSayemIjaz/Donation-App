@@ -1,58 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet, SafeAreaView, Text, TouchableOpacity, Image } from 'react-native';
-import { TextInput, RadioButton } from 'react-native-paper';
+import { TextInput, HelperText, Button, Title, IconButton } from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
 import CustomTextInput from '../components/CustomTextInput';
-import { StatusBar } from 'expo-status-bar';
+import Toast from 'react-native-toast-message';
+import CustomeIconButton from '../components/CustomeIconButton';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Color } from '../../GlobalStyles';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { ScrollView } from 'react-native-gesture-handler';
-import CustomeIconButton from '../components/CustomeIconButton';
-import { useNavigation } from '@react-navigation/native';
-import Toast from 'react-native-toast-message';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import { doc, setDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore/lite';
 import { ref, getStorage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { firestoreDB } from '../config/firebase';
 import * as Location from 'expo-location';
-import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
-import { useRoute } from '@react-navigation/native';
 import { generateAutoNumber } from '../utils/functions';
-const BloodDonarDetails = () => {
-     const { activeUser, setActiveUser } = useContext(AuthContext);
+
+const MedicineDonation = () => {
      const navigation = useNavigation();
      const route = useRoute();
-     const { data } = route.params;
-     const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
-     const [isButtonPressed, setIsButtonPressed] = useState(false);
-     const [isImageSelected, setIsImageSelected] = useState(false);
-     const [location, setLocation] = useState(null);
-     const [isLoading, setIsLoading] = useState(false);
+     const { activeUser } = useContext(AuthContext);
      const initialState = {
           title: '',
           desc: '',
           donorName: '',
-          donorAge: '',
-          quantity: '',
+          mobileNo: '',
           pickupAddress: '',
      }
-     const [state, setState] = useState(initialState);
-     const [error, setError] = useState({
-          title: '',
-          desc: '',
-          donorName: '',
-          donorAge: '',
-          quantity: '',
-          pickupAddress: ''
-     });
-     const storage = getStorage();
-     const metadata = {
-          contentType: 'image/jpeg'
-     };
-
      const handleToast = (type, text1, text2) => {
           Toast.show({
                type: type,
@@ -61,34 +39,56 @@ const BloodDonarDetails = () => {
                topOffset: 50,
           });
      }
+     const mobileRegex = /^(\+92|0)[0-9]{3}-[0-9]{7}$/;
+     const storage = getStorage();
+     const metadata = {
+          contentType: 'image/jpeg'
+     };
+     const [state, setState] = useState(initialState);
+     const [medicines, setMedicines] = useState([]);
 
+     const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
+     const [isButtonPressed, setIsButtonPressed] = useState(false);
+     const [isImageSelected, setIsImageSelected] = useState(false);
+     const [location, setLocation] = useState(null);
+     const [isLoading, setIsLoading] = useState(false);
+     const [error, setError] = useState({
+          title: '',
+          desc: '',
+          donorName: '',
+          mobileNo: '',
+          pickupAddress: '',
+     });
+     const addMedicine = () => {
+          setMedicines([...medicines, { quantity: '', name: '', expiryDate: '' }]);
+     };
      const validateForm = () => {
           let errors = {};
           if (!isImageSelected) {
                handleToast('error', 'Profile Image', 'Image Is required')
                return;
-          } else if (!state.donorName) {
-               errors.desc = true;
-               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
-          } else if (!state.donorAge) {
-               errors.desc = true;
-               handleToast('error', 'Donor Age', 'Please Enter Donor Age.')
-          } else if (!state.pickupAddress) {
-               errors.desc = true;
-               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
-          } else if (!state.quantity) {
-               errors.desc = true;
-               handleToast('error', 'Quantity', 'Please Enter Quantity.')
           } else if (!state.title) {
                errors.title = true;
                handleToast('error', 'Title', 'Please Enter Title of Donation')
-          } else if (!state.desc) {
+          } else if (!state.donorName) {
                errors.desc = true;
-               handleToast('error', 'Description', 'Please Enter Description of Donation.')
+               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
+          } else if (!state.mobileNo) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Mobile Number is required')
+          } else if (state.mobileNo.length < 12 && state.mobileNo.length > 12) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Mobile Number must be  11 digits')
+          } else if (!mobileRegex.test(state.mobileNo)) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Invalid mobile number')
+          } else if (!state.pickupAddress) {
+               errors.desc = true;
+               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
           } else if (!location) {
                handleToast('error', 'Location', 'Location is required')
-          }
-          setError(errors);
+          } else
+               setError(errors);
 
           return Object.keys(errors).length === 0;
      };
@@ -100,6 +100,18 @@ const BloodDonarDetails = () => {
           }));
      };
 
+     const handleMedicineChange = (index, field, value) => {
+          const newMedicines = [...medicines];
+          newMedicines[index][field] = value;
+          setMedicines(newMedicines);
+     };
+
+     const handleMedicineDelete = (index) => {
+          const newMedicines = [...medicines];
+          newMedicines.splice(index, 1);
+          setMedicines(newMedicines);
+     };
+ 
      useEffect(() => {
           (async () => {
                const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -142,9 +154,9 @@ const BloodDonarDetails = () => {
           }
      };
 
+
      const handleSubmit = async () => {
           setIsLoading(true)
-          console.log("previous data", data, state, location);
           // convert image into blob image 
           const response = await fetch(isImageSelected)
           const blob = await response.blob()
@@ -154,7 +166,7 @@ const BloodDonarDetails = () => {
           const dontaionId = generateAutoNumber(15);
           // upload image on firebase storage 
 
-          const storageRef = ref(storage, 'Donor Blood Reports/' + Date.now());
+          const storageRef = ref(storage, 'Medicine Images/' + Date.now());
           const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
 
           uploadTask.on('state_changed',
@@ -169,7 +181,18 @@ const BloodDonarDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data: data, donationId: dontaionId })
+                         setDoc(doc(firestoreDB, "Donations", dontaionId), {
+                              donorImage: activeUser?.photoURL,
+                              image: downloadURL,
+                              ...state,
+                              userlocation: location,
+                              dateCreated: serverTimestamp(),
+                              uid: user,
+                              type: 'medicine',
+                              status: 'PENDING',
+                              donationId: dontaionId,
+                              medicines: medicines
+                         })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -195,6 +218,7 @@ const BloodDonarDetails = () => {
           );
 
      };
+
      return (
           <SafeAreaView style={styles.container}>
                <StatusBar backgroundColor='transparent' translucent={false} style='dark' />
@@ -204,7 +228,7 @@ const BloodDonarDetails = () => {
                          <TouchableOpacity onPress={() => navigation.goBack()}>
                               <Ionicons name="arrow-back" size={26} color={Color.textPrimary} />
                          </TouchableOpacity>
-                         <Text style={styles.heading}>Blood Donor Details</Text>
+                         <Text style={styles.heading}>Medicine Donation</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.header}>
@@ -220,13 +244,20 @@ const BloodDonarDetails = () => {
                                                   :
                                                   <View style={styles.inactiveImageContainer}>
                                                        <Feather name="image" size={54} color={Color.primary} />
-                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Blood Test Report</Text>
+                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Medicines Image</Text>
                                                        {/* <FontAwesome name="user-circle-o" size={154}  /> */}
                                                   </View>
                                              }
                                         </TouchableOpacity>
                                    </View>
                                    <View style={styles.inputContainer}>
+                                        <CustomTextInput
+                                             label="Title"
+                                             placeholder="Enter Donation Title"
+                                             value={state.title}
+                                             onChangeText={text => handleInputChange('title', text)}
+                                             error={!!error.title && true}
+                                        />
                                         <CustomTextInput
                                              label="Donor Name"
                                              placeholder="Enter Donor Name"
@@ -235,53 +266,72 @@ const BloodDonarDetails = () => {
                                              error={!!error.donorName && true}
                                         />
                                         <CustomTextInput
-                                             label="Donor Age"
-                                             placeholder="Enter Donor Age"
-                                             value={state.donorAge}
-                                             onChangeText={text => handleInputChange('donorAge', text)}
-                                             error={!!error.donorAge && true}
+                                             label="Donor Mobile Number"
+                                             placeholder="Enter Mobile Number"
+                                             value={state.mobileNo}
+                                             onChangeText={text => handleInputChange('mobileNo', text)}
+                                             error={!!error.mobileNo && true}
                                              keyboardType="phone-pad"
-                                             maxLength={3}
+                                             maxLength={12}
                                         />
                                         <CustomTextInput
                                              label="Pickup Address"
-                                             placeholder="Enter Pickup Address"
+                                             placeholder="Enter Street Address"
                                              value={state.pickupAddress}
                                              onChangeText={text => handleInputChange('pickupAddress', text)}
                                              error={!!error.pickupAddress && true}
                                         />
-                                        <CustomTextInput
-                                             label="Quantity"
-                                             placeholder="Enter Quantity"
-                                             value={state.quantity}
-                                             onChangeText={text => handleInputChange('quantity', text)}
-                                             error={!!error.quantity && true}
-                                             keyboardType="phone-pad"
-                                             maxLength={3}
-                                        />
-                                        <CustomTextInput
-                                             label="Title"
-                                             placeholder="Enter Donation Title"
-                                             value={state.title}
-                                             onChangeText={text => handleInputChange('title', text)}
-                                             error={!!error.title && true}
-                                        />
 
-                                        <CustomTextArea
-                                             label="Description"
-                                             placeholder="Enter Description"
-                                             value={state.desc}
-                                             onChangeText={text => handleInputChange('desc', text)}
-                                             error={!!error.desc && true}
-                                             multiline
-                                             numberOfLines={7}
-                                        />
+                                        {/* Medicine Information */}
+                                        <Title style={{fontWeight: '600', color: Color.primary}}>Add Medicine Information</Title>
+                                        {medicines.map((medicine, index) => (
+                                             <View key={index} style={styles.medicineItem}>
+                                                  <CustomTextInput
+                                                       label="Quantity"
+                                                       placeholder="Enter Medicine Quantity"
+                                                       value={medicine.quantity}
+                                                       onChangeText={(value) => handleMedicineChange(index, 'quantity', value)}
+                                                       keyboardType="phone-pad"
+                                                  />
+                                                  <CustomTextInput
+                                                       label="Name (Brand & Generic)"
+                                                       placeholder="Enter Medicine Name"
+                                                       value={medicine.name}
+                                                       onChangeText={(value) => handleMedicineChange(index, 'name', value)}
+
+                                                  />
+
+                                                  <CustomTextInput
+                                                       label="Expire Date"
+                                                       placeholder="Enter Medicine Name"
+                                                       value={medicine.expiryDate}
+                                                       onChangeText={(value) => handleMedicineChange(index, 'expiryDate', value)}
+
+                                                  />
+                                                  <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                                                       <HelperText type="error" visible={!medicine.expiryDate}>
+                                                            Expiry Date is required
+                                                       </HelperText>
+                                                       <IconButton icon="delete" iconColor={Color.primary} background={Color.secondary} size={30} onPress={() => handleMedicineDelete(index)} />
+                                                  </View>
+                                             </View>
+                                        ))}
                                    </View>
 
                                    <View style={styles.btnContainer}>
+                                        <TouchableOpacity onPress={addMedicine}>
+                                             <CustomeIconButton
+                                                  title="Add Medicine"
+                                                  isLoading={isLoading}
+                                                  titleStyle={{ color: Color.primary }}
+                                                  style={[styles.primaryBtn,]}
+                                                  onPress={addMedicine}
+                                                  leftIcon={!isLoading && <FontAwesome6 name="add" size={24} color={Color.primary} />}
+                                             />
+                                        </TouchableOpacity>
                                         <TouchableOpacity onPress={handleSubmit}>
                                              <CustomeIconButton
-                                                  title="Donate Now"
+                                                  title="Submit Donation"
                                                   isLoading={isLoading}
                                                   titleStyle={{ color: Color.textSecondary }}
                                                   style={styles.btn}
@@ -293,7 +343,6 @@ const BloodDonarDetails = () => {
                                              />
                                         </TouchableOpacity>
                                    </View>
-
                               </View>
                          </View>
                     </ScrollView>
@@ -301,6 +350,7 @@ const BloodDonarDetails = () => {
           </SafeAreaView>
      );
 };
+
 const styles = StyleSheet.create({
      container: {
           flex: 1,
@@ -369,7 +419,7 @@ const styles = StyleSheet.create({
           width: '100%',
           alignItems: 'center',
           height: '100%',
-          paddingVertical: '20%',
+          paddingVertical: '5%',
           gap: 40
      },
      inputContainer: {
@@ -388,6 +438,11 @@ const styles = StyleSheet.create({
           borderColor: Color.primary,
           // marginTop: '5%'
      },
+     primaryBtn: {
+          borderWidth: 2,
+          borderColor: Color.secondary,
+          marginBottom: '5%'
+     },
      radioBtnContainer: {
           flexDirection: 'row',
           justifyContent: 'space-around',
@@ -400,7 +455,15 @@ const styles = StyleSheet.create({
      },
      radioLable: {
           fontSize: 20,
+     },
+     text: {
+          fontSize: 20,
+          color: Color.textPrimary,
+          marginLeft: '4%',
+          marginBottom: 14,
+          // letterSpacing: 1
      }
 });
 
-export default BloodDonarDetails;
+
+export default MedicineDonation;

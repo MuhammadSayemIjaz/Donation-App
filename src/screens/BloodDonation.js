@@ -9,11 +9,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import CustomeIconButton from '../components/CustomeIconButton';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { ref as dbRef, set } from 'firebase/database';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite';
-import { ref, getStorage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { auth, db, firestoreDB } from '../config/firebase';
-import * as Location from 'expo-location';
 import { AuthContext } from '../context/AuthContext';
 
 const BloodDonation = () => {

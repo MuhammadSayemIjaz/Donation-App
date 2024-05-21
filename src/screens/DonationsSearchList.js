@@ -60,10 +60,13 @@ const DonationsSearchList = () => {
                const name = donation?.data?.toLowerCase();
                const number = donation?.title?.toLowerCase();
                const description = donation?.desc?.toLowerCase();
-               return name?.includes(query?.toLowerCase()) || number?.includes(query?.toLowerCase()) || description?.includes(query?.toLowerCase());
+               const status = donation?.status?.toLowerCase();
+               const type = donation?.type?.toLowerCase();
+               return name?.includes(query?.toLowerCase()) || number?.includes(query?.toLowerCase()) || description?.includes(query?.toLowerCase()) || status?.includes(query?.toLowerCase()) || type?.includes(query?.toLowerCase())  ;
           });
           setDonations(filteredAmbulances)
           setSearchQuery(query)
+          console.log(donations);
           // isEmpty(query) && setDonations(copyDonations)
      }
 

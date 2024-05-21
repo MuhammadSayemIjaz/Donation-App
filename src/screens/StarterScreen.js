@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React, { useContext } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { Color } from '../../GlobalStyles';
@@ -11,6 +11,9 @@ const StarterScreen = () => {
      // }
      return (
           <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('StarterScreen1')}>
+               <View style={styles.imageContainer} >
+                    <Image style={styles.image} source={require('../../assets/images/DonateNow.png')} />
+               </View>
                <Text style={styles.heading}>Donate for Smile</Text>
           </TouchableOpacity>
      )
@@ -28,6 +31,19 @@ const styles = StyleSheet.create({
      },
      heading: {
           fontSize: 30,
-          color: Color.secondary
+          color: Color.secondary,
+          fontWeight: 'bold',
+          letterSpacing: 2,
+     },
+     imageContainer:{
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center'
+     },
+     image: {
+          width: 400,
+          // height: 300,
+          // aspectRatio: 1,
+          objectFit: 'contain'
      }
 })

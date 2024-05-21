@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, SafeAreaView, Text, TouchableOpacity, Image } from 'react-native';
-import { TextInput, RadioButton } from 'react-native-paper';
+import { TextInput, RadioButton, Checkbox } from 'react-native-paper';
 import CustomTextInput from '../components/CustomTextInput';
 import { StatusBar } from 'expo-status-bar';
 import { Color } from '../../GlobalStyles';
@@ -21,33 +21,46 @@ import { Feather } from '@expo/vector-icons';
 import CustomTextArea from '../components/CustomTextArea';
 import { useRoute } from '@react-navigation/native';
 import { generateAutoNumber } from '../utils/functions';
-const BloodDonarDetails = () => {
+const ClothDonation = () => {
      const { activeUser, setActiveUser } = useContext(AuthContext);
      const navigation = useNavigation();
      const route = useRoute();
-     const { data } = route.params;
      const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
      const [isButtonPressed, setIsButtonPressed] = useState(false);
      const [isImageSelected, setIsImageSelected] = useState(false);
      const [location, setLocation] = useState(null);
      const [isLoading, setIsLoading] = useState(false);
+
      const initialState = {
           title: '',
           desc: '',
           donorName: '',
-          donorAge: '',
+          clothSize: '',
           quantity: '',
           pickupAddress: '',
+          mobileNo: '',
+          clothCondition: ''
      }
      const [state, setState] = useState(initialState);
+     const [selectedClothing, setSelectedClothing] = useState([]);
      const [error, setError] = useState({
           title: '',
           desc: '',
           donorName: '',
-          donorAge: '',
+          clothSize: '',
           quantity: '',
-          pickupAddress: ''
+          pickupAddress: '',
+          mobileNo: '',
+          clothCondition :''
      });
+     const clothingTypes = [
+          { label: 'Shirts', value: 'shirts' },
+          { label: 'Pants', value: 'pants' },
+          { label: 'Dresses', value: 'dresses' },
+          { label: 'Shoes', value: 'shoes' },
+          { label: 'Others', value: 'others' },
+     ];
+     const mobileRegex = /^(\+92|0)[0-9]{3}-[0-9]{7}$/;
      const storage = getStorage();
      const metadata = {
           contentType: 'image/jpeg'
@@ -62,32 +75,51 @@ const BloodDonarDetails = () => {
           });
      }
 
+
+     const handleCheckboxChange = (value) => {
+          const newSelectedClothing = selectedClothing.includes(value)
+               ? selectedClothing.filter((item) => item !== value)
+               : [...selectedClothing, value];
+          setSelectedClothing(newSelectedClothing);
+     };
      const validateForm = () => {
           let errors = {};
           if (!isImageSelected) {
                handleToast('error', 'Profile Image', 'Image Is required')
                return;
-          } else if (!state.donorName) {
-               errors.desc = true;
-               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
-          } else if (!state.donorAge) {
-               errors.desc = true;
-               handleToast('error', 'Donor Age', 'Please Enter Donor Age.')
-          } else if (!state.pickupAddress) {
-               errors.desc = true;
-               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
-          } else if (!state.quantity) {
-               errors.desc = true;
-               handleToast('error', 'Quantity', 'Please Enter Quantity.')
           } else if (!state.title) {
                errors.title = true;
                handleToast('error', 'Title', 'Please Enter Title of Donation')
-          } else if (!state.desc) {
+          } else if (!state.donorName) {
                errors.desc = true;
-               handleToast('error', 'Description', 'Please Enter Description of Donation.')
-          } else if (!location) {
+               handleToast('error', 'Donor Name', 'Please Enter Donor Name.')
+          } else if (!state.mobileNo) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Mobile Number is required')
+          } else if (state.mobileNo.length < 12 && state.mobileNo.length > 12) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Mobile Number must be  11 digits')
+          } else if (!mobileRegex.test(state.mobileNo)) {
+               errors.mobileNo = true;
+               handleToast('error', 'Mobile Number', 'Invalid mobile number')
+          }else if (!state.pickupAddress) {
+               errors.desc = true;
+               handleToast('error', 'Pickup Address', 'Please Enter Pickup Address.')
+          } else if (selectedClothing.length === 0) {
+               errors.desc = true;
+               handleToast('error', 'Types of Clothing', 'Please Select Clothing Type.')
+          } else if (!state.clothCondition) {
+               errors.desc = true;
+               handleToast('error', 'Cloths Condition', 'Please describe cloths condition.')
+          } else  if (!state.clothSize) {
+               errors.desc = true;
+               handleToast('error', 'Cloth Size', 'Please Enter Cloth Sizes.')
+          } else  if (!state.quantity) {
+               errors.desc = true;
+               handleToast('error', 'Quantity', 'Please Enter Quantity.')
+          } else  if (!location) {
                handleToast('error', 'Location', 'Location is required')
-          }
+          } else 
           setError(errors);
 
           return Object.keys(errors).length === 0;
@@ -142,9 +174,9 @@ const BloodDonarDetails = () => {
           }
      };
 
+
      const handleSubmit = async () => {
           setIsLoading(true)
-          console.log("previous data", data, state, location);
           // convert image into blob image 
           const response = await fetch(isImageSelected)
           const blob = await response.blob()
@@ -154,7 +186,7 @@ const BloodDonarDetails = () => {
           const dontaionId = generateAutoNumber(15);
           // upload image on firebase storage 
 
-          const storageRef = ref(storage, 'Donor Blood Reports/' + Date.now());
+          const storageRef = ref(storage, 'Cloth Images/' + Date.now());
           const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
 
           uploadTask.on('state_changed',
@@ -169,7 +201,18 @@ const BloodDonarDetails = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                          // update profile in authentication
                          // store user data into firebase firestore database
-                         setDoc(doc(firestoreDB, "Donations", dontaionId), { donorImage: activeUser?.photoURL, image: downloadURL, ...state, userlocation: location, dateCreated: serverTimestamp(), uid: user, type: 'blood', status: 'PENDING', data: data, donationId: dontaionId })
+                         setDoc(doc(firestoreDB, "Donations", dontaionId), { 
+                              donorImage: activeUser?.photoURL, 
+                              image: downloadURL, 
+                              ...state, 
+                              userlocation: location, 
+                              dateCreated: serverTimestamp(), 
+                              uid: user, 
+                              type: 'cloths', 
+                              status: 'PENDING', 
+                              donationId: dontaionId,
+                              clothTypes : selectedClothing
+                          })
 
                               // store user email and uid in firebase realtime databases
                               // set(dbRef(db, 'users/' + user), {
@@ -204,7 +247,7 @@ const BloodDonarDetails = () => {
                          <TouchableOpacity onPress={() => navigation.goBack()}>
                               <Ionicons name="arrow-back" size={26} color={Color.textPrimary} />
                          </TouchableOpacity>
-                         <Text style={styles.heading}>Blood Donor Details</Text>
+                         <Text style={styles.heading}>Cloth Donation</Text>
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                          <View style={styles.header}>
@@ -220,13 +263,20 @@ const BloodDonarDetails = () => {
                                                   :
                                                   <View style={styles.inactiveImageContainer}>
                                                        <Feather name="image" size={54} color={Color.primary} />
-                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Blood Test Report</Text>
+                                                       <Text style={{ fontSize: 20, lineHeight: 30, color: Color.textPrimary, letterSpacing: 1, textAlign: 'center' }}>Upload Cloths Image</Text>
                                                        {/* <FontAwesome name="user-circle-o" size={154}  /> */}
                                                   </View>
                                              }
                                         </TouchableOpacity>
                                    </View>
                                    <View style={styles.inputContainer}>
+                                        <CustomTextInput
+                                             label="Title"
+                                             placeholder="Enter Donation Title"
+                                             value={state.title}
+                                             onChangeText={text => handleInputChange('title', text)}
+                                             error={!!error.title && true}
+                                        />
                                         <CustomTextInput
                                              label="Donor Name"
                                              placeholder="Enter Donor Name"
@@ -235,13 +285,13 @@ const BloodDonarDetails = () => {
                                              error={!!error.donorName && true}
                                         />
                                         <CustomTextInput
-                                             label="Donor Age"
-                                             placeholder="Enter Donor Age"
-                                             value={state.donorAge}
-                                             onChangeText={text => handleInputChange('donorAge', text)}
-                                             error={!!error.donorAge && true}
+                                             label="Donor Mobile Number"
+                                             placeholder="Enter Mobile Number"
+                                             value={state.mobileNo}
+                                             onChangeText={text => handleInputChange('mobileNo', text)}
+                                             error={!!error.mobileNo && true}
                                              keyboardType="phone-pad"
-                                             maxLength={3}
+                                             maxLength={12}
                                         />
                                         <CustomTextInput
                                              label="Pickup Address"
@@ -249,6 +299,33 @@ const BloodDonarDetails = () => {
                                              value={state.pickupAddress}
                                              onChangeText={text => handleInputChange('pickupAddress', text)}
                                              error={!!error.pickupAddress && true}
+                                        />
+                                         <View>
+                                             <Text style={styles.text}>Types of Clothing</Text>
+                                             {clothingTypes.map((item) => (
+                                                  <Checkbox.Item
+                                                       color={Color.primary}
+                                                       labelStyle={{ fontSize: 20 }}
+                                                       key={item.value}
+                                                       label={item.label}
+                                                       status={selectedClothing.includes(item.value) ? 'checked' : 'unchecked'}
+                                                       onPress={() => handleCheckboxChange(item.value)}
+                                                  />
+                                             ))}
+                                        </View>
+                                        <CustomTextInput
+                                             label="Cloths Condition"
+                                             placeholder="Cloths Condition"
+                                             value={state.clothCondition}
+                                             onChangeText={text => handleInputChange('clothCondition', text)}
+                                             error={!!error.clothCondition && true}
+                                        />     
+                                        <CustomTextInput
+                                             label="Sizes of Clothing"
+                                             placeholder="Enter Clothing Sizes"
+                                             value={state.clothSize}
+                                             onChangeText={text => handleInputChange('clothSize', text)}
+                                             error={!!error.clothSize && true}
                                         />
                                         <CustomTextInput
                                              label="Quantity"
@@ -258,14 +335,7 @@ const BloodDonarDetails = () => {
                                              error={!!error.quantity && true}
                                              keyboardType="phone-pad"
                                              maxLength={3}
-                                        />
-                                        <CustomTextInput
-                                             label="Title"
-                                             placeholder="Enter Donation Title"
-                                             value={state.title}
-                                             onChangeText={text => handleInputChange('title', text)}
-                                             error={!!error.title && true}
-                                        />
+                                        />                                   
 
                                         <CustomTextArea
                                              label="Description"
@@ -400,7 +470,14 @@ const styles = StyleSheet.create({
      },
      radioLable: {
           fontSize: 20,
+     },
+     text: {
+          fontSize: 20,
+          color: Color.textPrimary,
+          marginLeft: '4%',
+          marginBottom: 14,
+          // letterSpacing: 1
      }
 });
 
-export default BloodDonarDetails;
+export default ClothDonation;

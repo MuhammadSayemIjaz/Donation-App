@@ -73,7 +73,7 @@ const ForgotPassword = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.imageContainer}>
             <View style={styles.image}>
-              <Image style={styles.image} source={require('../../../assets/images/forgotPassword.jpg')} resizeMode='contain' />
+              <Image style={styles.image} source={require('../../../assets/images/forgotPassword.png')} resizeMode='contain' />
             </View>
           </View>
           <Text style={styles.heading}>Forgot Password</Text>
@@ -84,7 +84,7 @@ const ForgotPassword = () => {
                 label="Email"
                 placeholder="Enter Email"
                 left={
-                  <TextInput.Icon iconColor={Color.backgroundColorPrimary} icon="email" size={30} />
+                  <TextInput.Icon iconColor={Color.primary} icon="email" size={30} />
                 }
                 value={state.email}
                 onChangeText={(value) => handleInputChange('email', value)}
@@ -95,8 +95,8 @@ const ForgotPassword = () => {
               <CustomeIconButton
                 isLoading={isLoading}
                 title="Reset Password"
-                leftIcon={<MaterialCommunityIcons name="email-send" size={24} color={Color.containerColor} />}
-                titleStyle={{ color: Color.containerColor }}
+                leftIcon={<MaterialCommunityIcons name="email-send" size={24} color={Color.white} />}
+                titleStyle={{ color: Color.white }}
                 style={styles.btn}
                 onPress={() => {
                   if (validateForm()) {
@@ -121,7 +121,7 @@ const ForgotPassword = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.backgroundColorPrimary,
+    backgroundColor: Color.primary,
   },
   inputConatiner: {
     padding: '5%'
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     height: '100%',
     padding: '7%',
-    backgroundColor: Color.containerColor
+    backgroundColor: Color.white
   },
   heading: {
     marginTop: '10%',
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   btn: {
-    backgroundColor: Color.backgroundColorPrimary,
+    backgroundColor: Color.primary,
   },
   imageContainer: {
     height: 270,

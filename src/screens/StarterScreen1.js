@@ -14,7 +14,7 @@ const StarterScreen1 = () => {
                <StatusBar backgroundColor='transparent' translucent={true} style='dark' />
                <Image style={styles.image} source={require('../../assets/images/donation1.jpg')} />
                <Text style={styles.heading}>Need To Change Our Society</Text>
-               <Text style={styles.paragraph}>Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
+               <Text style={styles.paragraph}>Your generosity can change a life, donate now.</Text>
                <CustomeIconButton
                     isLoading={false}
                     title="Create an account"

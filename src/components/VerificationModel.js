@@ -83,7 +83,7 @@ const VerificationModel = ({ toggleModal, isModalVisible, donationId, donationSt
                          <View style={styles.btnConatiner}>
                               <TouchableOpacity activeOpacity={0.3} >
                                    <CustomeIconButton
-                                        leftIcon={
+                                        leftIcon={!isLoading &&
                                              <FontAwesome6 name="file-circle-check" size={24} color={Color.white} />
                                         }
                                         title={donationStatus === 'RECEIVED' ? 'Receive Donation' : "Verify Donation"}

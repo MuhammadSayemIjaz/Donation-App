@@ -122,14 +122,14 @@ const Home = ({ navigation }) => {
                     <Text onPress={() => navigation.navigate('Categories')} style={{ fontSize: 20, fontWeight: "700", letterSpacing: 1, color: Color.textSecondary }}>View All</Text>
                     {/* </TouchableOpacity> */}
                </View>
-             { role !== 'receiver' && <View style={styles.card2}>
+               {role !== 'receiver' && role !== 'admin' && <View style={styles.card2}>
                     <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('MoneyDonation')}>
                          <View style={styles.subcard}>
                               <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('CurrentLocationMap')}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('FoodDonation')}>
                          <View style={styles.subcard}>
                               <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
                               {/* <Entypo name="location"  /> */}
@@ -142,34 +142,34 @@ const Home = ({ navigation }) => {
                               {/* <Text style={styles.cardtext}>Notifications</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('DriverAccountDetails')}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ClothDonation')}>
                          <View style={styles.subcard}>
                               <Ionicons name="shirt" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>Account Settings</Text> */}
                          </View>
                     </TouchableOpacity>
                </View>}
-             { role === 'receiver' && <View style={styles.card2}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'charity'})}>
+               {role === 'receiver' && <View style={styles.card2}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'charity' })}>
                          <View style={styles.subcard}>
                               <FontAwesome5 name="money-bill-wave" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>See Hospital Details</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'food'})}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'food' })}>
                          <View style={styles.subcard}>
                               <Ionicons name="fast-food-sharp" size={36} color={Color.textSecondary} />
                               {/* <Entypo name="location"  /> */}
                               {/* <Text style={styles.cardtext}>Current Location</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'blood'})}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'blood' })}>
                          <View style={styles.subcard}>
                               <Fontisto name="blood-drop" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>Notifications</Text> */}
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', {type : 'cloths'})}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ReceiverSearchList', { type: 'cloths' })}>
                          <View style={styles.subcard}>
                               <Ionicons name="shirt" size={36} color={Color.textSecondary} />
                               {/* <Text style={styles.cardtext}>Account Settings</Text> */}
@@ -177,15 +177,15 @@ const Home = ({ navigation }) => {
                     </TouchableOpacity>
                </View>}
 
-               <View style={styles.header}>
-                    <View style={styles.mainTextContainer}>
-                         <Text style={styles.text}>Previous Donations</Text>
-                         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Categories')}>
-                              <Text style={styles.text}>See All</Text>
-                         </TouchableOpacity>
+               <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={styles.header}>
+                         <View style={styles.mainTextContainer}>
+                              <Text style={styles.text}>Previous Donations</Text>
+                              <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationsSearchList')}>
+                                   <Text style={styles.text}>See All</Text>
+                              </TouchableOpacity>
 
-                    </View>
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                         </View>
                          <View style={styles.bottomContainer}>
                               {isLoading ?
                                    (<View style={styles.loadingContainer}>
@@ -241,8 +241,8 @@ const Home = ({ navigation }) => {
                                         ))
                                    )}
                          </View>
-                    </ScrollView>
-               </View>
+                    </View>
+               </ScrollView>
           </SafeAreaView >
      );
 };

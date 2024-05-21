@@ -55,7 +55,9 @@ const ReceiverSearchList = ({route}) => {
                const name = donation?.data?.toLowerCase();
                const number = donation?.title?.toLowerCase();
                const description = donation?.desc?.toLowerCase();
-               return name?.includes(query?.toLowerCase()) || number?.includes(query?.toLowerCase()) || description?.includes(query?.toLowerCase());
+               const status = donation?.status?.toLowerCase();
+               const type = donation?.type?.toLowerCase();
+               return name?.includes(query?.toLowerCase()) || number?.includes(query?.toLowerCase()) || description?.includes(query?.toLowerCase()) || status?.includes(query?.toLowerCase()) || type?.includes(query?.toLowerCase()) ;
           });
           setDonations(filteredAmbulances)
           setSearchQuery(query)
@@ -99,7 +101,7 @@ const ReceiverSearchList = ({route}) => {
                                              <Text style={styles.heading}>Empty List</Text>
                                         </View> :
                                         donations.map((donation) => (
-                                             <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
+                                             <TouchableOpacity key={donation?.donationId} activeOpacity={0.7} onPress={() => navigation.navigate('DonationDetails', { item: donation })}>
                                                   <View style={[styles.card,
                                                   donation?.status === 'PENDING' && { backgroundColor: 'orange' } ||
                                                   donation?.status === 'APPROVED' && { backgroundColor: '#26CC00' } ||

@@ -25,17 +25,6 @@ const DonationDetails = ({ navigation, route }) => {
      const [donationStatus, setDonationStatus] = useState('PENDING');
      const [visible, setIsVisible] = useState(false);
      const [images, setImages] = useState([]);
-     // const images = [
-     //      {
-     //           uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
-     //      },
-     //      {
-     //           uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
-     //      },
-     //      {
-     //           uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
-     //      },
-     // ];
      const timestampObject = item.dateCreated;
 
      // Combine seconds and nanoseconds into milliseconds
@@ -154,41 +143,90 @@ const DonationDetails = ({ navigation, route }) => {
                                    </View>
                               }
 
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Date: </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{formattedDate} </Text>
                               </View>
                               {
-                                   item?.type === 'blood' && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   item?.type === 'blood' && <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                         <Text style={styles.desc}>Blood Group: </Text>
                                         <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.data}</Text>
                                    </View>
                               }
-
-                              {item?.quantity && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              {
+                                   item?.amount && <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Amount: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.amount} Rs.</Text>
+                                   </View>
+                              }
+                              {item?.clothSize &&
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Cloth Size: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.clothSize} </Text>
+                                   </View>
+                              }
+                              {item?.clothTypes &&
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Cloth Types: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}> {item?.clothTypes.map((type, ind) => (<Text key={ind}>{type + ','} </Text>))} </Text>
+                                   </View>
+                              }
+                              {item?.foodTypes &&
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Food Types: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}> {item?.foodTypes.map((type, ind) => (<Text key={ind}>{type + ','} </Text>))} </Text>
+                                   </View>
+                              }
+                              {item?.clothCondition &&
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={styles.desc}>Cloth Condition: </Text>
+                                        <Text style={[styles.desc, { fontWeight: '600' }]}> {item?.clothCondition} </Text>
+                                   </View>
+                              }
+                              {item?.quantity && <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Quantity : </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.quantity}</Text>
                               </View>}
-                              {item?.type === 'money' && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              {item?.type === 'money' && <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Charity : </Text>
                                    <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.amount}.</Text>
                               </View>}
-                              {item?.donorName && <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                              {item?.donorName && <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                    <Text style={styles.desc}>Donor Name: </Text>
-                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorName} Years</Text>
+                                   <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorName}</Text>
                               </View>}
                               {item?.donorAge &&
-                                   <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                   <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                         <Text style={styles.desc}>Donor Age: </Text>
                                         <Text style={[styles.desc, { fontWeight: '600' }]}>{item?.donorAge} Years</Text>
                                    </View>
                               }
-                              <View style={{ marginTop: '4%', flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
+                               <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10 }}>
                                    <Text style={styles.desc}>Donor Image: </Text>
                                    <TouchableOpacity style={styles.imageContainer1} onPress={() => handleImageView(item?.donorImage)}>
                                         <Image source={{ uri: item?.donorImage }} style={styles.image1} />
                                    </TouchableOpacity>
                               </View>
+                              {item?.medicines && item?.medicines.length > 0 && item?.medicines.map((medicine, index) => (
+                                   <View key={index}>
+                                        <Text style={styles.title}>Medicine {index + 1} Details</Text>
+                                        <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                             <Text style={styles.desc}>Medicine Name: </Text>
+                                             <Text style={[styles.desc, { fontWeight: '600' }]}>{medicine?.name} </Text>
+                                        </View>
+                                        <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                             <Text style={styles.desc}>Expiry Date: </Text>
+                                             <Text style={[styles.desc, { fontWeight: '600' }]}>{medicine?.expiryDate} </Text>
+                                        </View>
+                                        <View style={{ marginTop: '4%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                             <Text style={styles.desc}>Quantity: </Text>
+                                             <Text style={[styles.desc, { fontWeight: '600' }]}>{medicine?.quantity} </Text>
+                                        </View>
+                                   </View>
+                              ))}
+
+
+                             
                               <TouchableOpacity style={styles.imageContainer} onPress={() => handleImageView(item?.image)}>
                                    <Image source={{ uri: item?.image }} style={styles.image} />
                               </TouchableOpacity>

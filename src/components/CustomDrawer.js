@@ -16,14 +16,13 @@ import { AuthContext } from '../context/AuthContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
 import { Color } from '../../GlobalStyles';
-import { auth } from '../config/firebase';
-import { signOut } from '@firebase/auth';
+
 import { useNavigation } from '@react-navigation/core';
 import { isEmpty } from 'lodash';
 import { StatusBar } from 'expo-status-bar';
 
 const CustomDrawer = (props) => {
-     const { activeUser, setActiveUser } = useContext(AuthContext);
+     const { activeUser, setActiveUser, handleSignOut } = useContext(AuthContext);
      const navigation = useNavigation();
      const handleToast = (type, text1, text2) => {
           Toast.show({
@@ -33,16 +32,9 @@ const CustomDrawer = (props) => {
                topOffset: 50,
           });
      }
-     const handleSignOut = () => {
-          signOut(auth)
-               .then((res) => {
-                    handleToast("success", "Logout", "Logged Out Successfully")
-                    setActiveUser({})
-                    navigation.navigate('Login')
-               }).catch((err) => {
-                    handleToast("error", "Error Message", err)
-               })
-     };
+     const handleSignOut1 = async () => {
+          handleSignOut()
+     }
      return (
           <View style={{ flex: 1, backgroundColor: Color.white }}>
                <DrawerContentScrollView
@@ -58,7 +50,7 @@ const CustomDrawer = (props) => {
                                    <FontAwesome name="user-circle-o" size={70} color={Color.containerColor} />
                               }
                               {activeUser ? <View>
-                                   <Text style={{ fontWeight:'600', fontSize: 25, marginLeft: 10, color: Color.textPrimary }}> {activeUser?.displayName}</Text>
+                                   <Text style={{ fontWeight: '600', fontSize: 25, marginLeft: 10, color: Color.textPrimary }}> {activeUser?.displayName}</Text>
                                    <Text style={{ fontSize: 12, marginLeft: 10, color: Color.textPrimary }}> {activeUser?.email}</Text>
                               </View> : <TouchableOpacity activeOpacity={0.7} onPress={() => props.navigation.navigate('Login')}>
                                    <Button
@@ -95,7 +87,7 @@ const CustomDrawer = (props) => {
                               </Text>
                          </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleSignOut} style={{ paddingVertical: 15 }}>
+                    <TouchableOpacity onPress={handleSignOut1} style={{ paddingVertical: 15 }}>
                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                               <FontAwesome name="sign-out" size={24} color={Color.primary} />
                               <Text
